@@ -1,0 +1,47 @@
+/**
+ *
+ *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#ifndef SLAM_MAPGEN_LOGGING_UTIL_H
+#define SLAM_MAPGEN_LOGGING_UTIL_H
+
+#define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+
+#include <iostream>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+
+void init_logging(){
+    if (CMAKE_BUILD_TYPE == "Debug") {
+        std::cout << "set logger to Debug" << std::endl;
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::debug
+        );
+    }
+    else{
+        std::cout << "set logger to Release" << std::endl;
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::info
+        );
+    }
+
+}
+
+
+#endif //SLAM_MAPGEN_LOGGING_UTIL_H

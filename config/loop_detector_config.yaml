@@ -1,0 +1,6 @@
+%YAML:1.0
+---
+img_dir: /home/ernest/SLAM/datasets/sequence_43/images/
+trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectory_noloop.yaml"
+Vocabulary: "/home/ernest/SLAM/colab-gsoc2018-JianxiongCai/Vocabulary/ORBvoc.txt"
+loop_detection_threshold: 0.575
