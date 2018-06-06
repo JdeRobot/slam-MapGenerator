@@ -28,7 +28,14 @@ namespace MapGen {
         orb_ = cv::ORB::create();
 
         BOOST_LOG_TRIVIAL(info) << "Loading voc from " << pretrained_voc;
-        voc_.loadFromTextFile(pretrained_voc);
+        std::regex e ("(.*)(.txt)");
+        if (std::regex_match(pretrained_voc,e)) {
+            BOOST_LOG_TRIVIAL(debug) << "txt file detected";
+            voc_.loadFromTextFile(pretrained_voc);
+        }
+        else{
+            voc_.load(pretrained_voc);
+        }
         BOOST_LOG_TRIVIAL(info) << "Loaded voc from " << pretrained_voc;
 
         // compute all features
@@ -83,7 +90,7 @@ namespace MapGen {
         for (int i = 0; i < all_keyframes.size(); i++){
             KeyFrame * kf_1 = all_keyframes[i];
             // loop closure only apply for keyframes away from each other (10 keyframes here)
-            for (int j = i+11; j < all_keyframes.size(); j++){
+            for (int j = i+21; j < all_keyframes.size(); j++){
                 KeyFrame * kf_2 = all_keyframes[j];
                 double score = voc_.score(kf_1->getBowVector(), kf_2->getBowVector());
                 if (score > loop_closure_thres_) {
