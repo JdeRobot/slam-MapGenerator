@@ -58,9 +58,9 @@ target_link_libraries( loop_detection ${OpenCV_LIBS}
         )
 
 # Vocabulary Converter
-add_executable(voc-converter src/tools/VocabularyConverter.cpp ${logging_src} ${dow2_ext_src})
+add_executable(voc_converter src/tools/VocabularyConverter.cpp ${logging_src} ${dow2_ext_src})
 target_link_libraries(
-        voc-converter
+        voc_converter
         ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}

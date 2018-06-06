@@ -17,6 +17,10 @@
  *
  */
 
+ /*
+  * Usage: ./VocabularyConverter ORBvoc.txt ORBvox.tar.gz
+  */
+
 #include <iostream>
 #include "ORBVocabularyExt.h"
 #include "logging_util.h"

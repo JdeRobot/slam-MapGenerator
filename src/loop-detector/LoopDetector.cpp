@@ -34,7 +34,7 @@ namespace MapGen {
             voc_.loadFromTextFile(pretrained_voc);
         }
         else{
-            BOOST_LOG_TRIVIAL(error) << "Not implemented yet";
+            voc_.load(pretrained_voc);
         }
         BOOST_LOG_TRIVIAL(info) << "Loaded voc from " << pretrained_voc;
 
@@ -90,7 +90,7 @@ namespace MapGen {
         for (int i = 0; i < all_keyframes.size(); i++){
             KeyFrame * kf_1 = all_keyframes[i];
             // loop closure only apply for keyframes away from each other (10 keyframes here)
-            for (int j = i+11; j < all_keyframes.size(); j++){
+            for (int j = i+21; j < all_keyframes.size(); j++){
                 KeyFrame * kf_2 = all_keyframes[j];
                 double score = voc_.score(kf_1->getBowVector(), kf_2->getBowVector());
                 if (score > loop_closure_thres_) {
