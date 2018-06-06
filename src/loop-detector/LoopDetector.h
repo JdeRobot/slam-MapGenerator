@@ -23,6 +23,7 @@
 
 #include <Map.h>
 #include <iostream>
+#include <regex>
 
 // opencv
 #include <opencv2/core/core.hpp>
