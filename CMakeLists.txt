@@ -25,10 +25,11 @@ include_directories(${DLib_INCLUDE_DIRS})
 
 # src
 include_directories(src/common)
-include_directories(src/loop-detector)
+include_directories(src/loop-closure)
 include_directories(src/logging)
 include_directories(src/config)
 include_directories(src/tools)
+include_directories(third-party/ORB2_SLAM)
 
 # extending DBoW2 standard library
 include_directories(src/DBoW2-ext)
@@ -38,19 +39,21 @@ file(GLOB common_src src/common/*(.h|.cpp))
 file(GLOB dow2_ext_src src/DBoW2-ext/*(.h|.cpp))
 file(GLOB logging_src src/logging/*(.h|.cpp))
 file(GLOB config_src src/config/*(.h|.cpp))
+file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 
 # boost (for logging)
 find_package(Boost COMPONENTS log log_setup thread date_time filesystem system REQUIRED)
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 # Loop-detector
-file(GLOB loop_detector_src src/loop-detector/*)
+file(GLOB loop_detector_src src/loop-closure/*)
 add_executable(loop_detection
         ${loop_detector_src}
         ${common_src}
         ${dow2_ext_src}
         ${logging_src}
-        ${config_src})
+        ${config_src}
+        ${orb2_src})
 target_link_libraries( loop_detection ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}

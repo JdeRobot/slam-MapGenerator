@@ -27,21 +27,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 
-void init_logging(){
-    if (CMAKE_BUILD_TYPE == "Debug") {
-        std::cout << "set logger to Debug" << std::endl;
-        boost::log::core::get()->set_filter(
-                boost::log::trivial::severity >= boost::log::trivial::debug
-        );
-    }
-    else{
-        std::cout << "set logger to Release" << std::endl;
-        boost::log::core::get()->set_filter(
-                boost::log::trivial::severity >= boost::log::trivial::info
-        );
-    }
-
-}
+void init_logging();
 
 
 #endif //SLAM_MAPGEN_LOGGING_UTIL_H

@@ -55,5 +55,8 @@ int main (int argc, const char * argv[]){
 
     BOOST_LOG_TRIVIAL(info) << "Detection Completed";
 
+    // try to close the loop
+    
+
     return 0;
 }

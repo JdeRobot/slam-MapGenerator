@@ -79,6 +79,9 @@ class KeyFrame {
     std::mutex mutexConnections_;
     std::mutex mutexFeatures_;
 
+    // ORB Features
+
+
     // BoW Vector
     DBoW2::BowVector bow_vector_;
 

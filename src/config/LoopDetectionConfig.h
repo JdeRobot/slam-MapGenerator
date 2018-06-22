@@ -24,7 +24,8 @@
 #include <string>
 #include <opencv2/core/persistence.hpp>
 #include <exception>
-#include <boost/log/trivial.hpp>
+#include <sys/stat.h>
+#include <logging_util.h>
 
 namespace MapGen {
     class LoopDetectionConfig {
