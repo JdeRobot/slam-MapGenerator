@@ -16,9 +16,10 @@ namespace MapGen {
         LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair,
                        const std::map<int, cv::Mat>& feature_map, cv::BFMatcher& matcher);
 
+        
     private:
+        // the essential matrix between two frames
         cv::Mat sle;
-        cv::Mat
     };
 
 }
