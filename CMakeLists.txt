@@ -69,3 +69,9 @@ target_link_libraries(
         ${DLib_LIBS}
         ${Boost_LIBRARIES}
         )
+
+#add_executable(play src/play.cpp)
+#target_link_libraries(play ${OpenCV_LIBS}
+#        ${DBoW2_LIBS}
+#        ${DLib_LIBS}
+#        ${Boost_LIBRARIES})

@@ -13,10 +13,9 @@ namespace MapGen {
 
     class LoopConnection {
     public:
-        LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair,
-                       const std::map<int, cv::Mat>& feature_map, cv::BFMatcher& matcher);
+        LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair, cv::BFMatcher& matcher);
 
-        
+
     private:
         // the essential matrix between two frames
         cv::Mat sle;

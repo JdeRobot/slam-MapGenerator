@@ -62,7 +62,8 @@ namespace MapGen {
             cv::Mat descriptors;
             orb_->detectAndCompute(img, mask, keypoints, descriptors);
             // save the ORB feature
-            orb_features_[frame->GetId()] = descriptors;
+            frame->setKeypoints(keypoints);
+            frame->setDesciptor(descriptors);
 
             //
             // convert feature to bow vector

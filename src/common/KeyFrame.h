@@ -27,6 +27,7 @@
 
 #include <map>
 #include <mutex>
+#include <opencv2/core.hpp>
 #include <BowVector.h>
 #include "MapPoint.h"
 
@@ -59,6 +60,13 @@ class KeyFrame {
     void setBowVector(const DBoW2::BowVector& bow_vector);
     DBoW2::BowVector getBowVector();
 
+    void setKeypoints(const std::vector<cv::KeyPoint>& keypoints);
+    std::vector<cv::KeyPoint> getKeypoints();
+
+    void setDesciptor(const cv::Mat& descriptor);
+    cv::Mat getDescriptor();
+
+
  private:
     // KeyFrame id
     int id_;
@@ -80,7 +88,8 @@ class KeyFrame {
     std::mutex mutexFeatures_;
 
     // ORB Features
-
+    std::vector<cv::KeyPoint> keypoints_;
+    cv::Mat descriptor_;
 
     // BoW Vector
     DBoW2::BowVector bow_vector_;
