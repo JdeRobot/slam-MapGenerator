@@ -3,3 +3,9 @@
 //
 
 #include "LoopConnection.h"
+
+namespace MapGen{
+    cv::Mat LoopConnection::get_sim3() {
+        return sle_;
+    }
+}

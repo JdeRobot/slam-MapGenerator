@@ -49,7 +49,6 @@ namespace MapGen {
 
         std::vector<std::pair<KeyFrame *, KeyFrame *>> getLoopClosingPairs();
 
-
     private:
         // iterate through all images and compute BowVector for each image
         void computeAllFeatures(MapGen::Map &, const std::string &);

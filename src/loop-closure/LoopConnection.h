@@ -15,10 +15,12 @@ namespace MapGen {
     public:
         LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair, cv::BFMatcher& matcher);
 
+        // get the relative pose between two frames
+        cv::Mat get_sim3();
 
     private:
         // the essential matrix between two frames
-        cv::Mat sle;
+        cv::Mat sle_;
     };
 
 }

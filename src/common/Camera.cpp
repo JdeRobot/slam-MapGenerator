@@ -3,3 +3,10 @@
 //
 
 #include "Camera.h"
+
+
+namespace MapGen{
+    Camera::Camera(const CameraParameters &params) {
+        params_ = params;
+    }
+}
