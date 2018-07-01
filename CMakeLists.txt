@@ -22,23 +22,28 @@ find_package( DBoW2 REQUIRED)
 include_directories(${DBoW2_INCLUDE_DIRS})
 find_package( DLib REQUIRED)
 include_directories(${DLib_INCLUDE_DIRS})
+# Pangolin
+find_package(Pangolin REQUIRED)
+include_directories(${Pangolin_INCLUDE_DIRS})
+ADD_DEFINITIONS(-DPANGOLIN)
 
 # src
-include_directories(src/common)
-include_directories(src/loop-closure)
-include_directories(src/logging)
-include_directories(src/config)
-include_directories(src/tools)
-include_directories(third-party/ORB2_SLAM)
-
-# extending DBoW2 standard library
-include_directories(src/DBoW2-ext)
+include_directories(src/common
+        src/loop-closure
+        src/logging
+        src/config
+        src/tools
+        src/visualization
+        src/DBoW2-ext
+        third-party/ORB2_SLAM
+        )
 
 # common
 file(GLOB common_src src/common/*(.h|.cpp))
 file(GLOB dow2_ext_src src/DBoW2-ext/*(.h|.cpp))
 file(GLOB logging_src src/logging/*(.h|.cpp))
 file(GLOB config_src src/config/*(.h|.cpp))
+file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 
 # boost (for logging)
@@ -69,6 +74,13 @@ target_link_libraries(
         ${DLib_LIBS}
         ${Boost_LIBRARIES}
         )
+
+add_executable(view_test src/tests/view_test.cpp
+        ${loop_detector_src}
+        ${common_src}
+        ${logging_src}
+        ${visualization_src})
+target_link_libraries(view_test ${OpenCV_LIBS} ${Pangolin_LIBRARIES})
 
 #add_executable(play src/play.cpp)
 #target_link_libraries(play ${OpenCV_LIBS}

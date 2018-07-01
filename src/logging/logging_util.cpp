@@ -14,3 +14,8 @@ void init_logging(){
         );
     }
 }
+
+
+inline void LOG_INFO(const std::string& msg){
+    BOOST_LOG_TRIVIAL(info) << msg;
+}

@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *  Copyright (C) 2018 Eduardo Perdices <eperdices at gsyc dot es>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,19 +17,31 @@
  *
  */
 
-#ifndef SLAM_MAPGEN_LOGGING_UTIL_H
-#define SLAM_MAPGEN_LOGGING_UTIL_H
+#ifndef SLAM_VIEWER_MAPDRAWER_H
+#define SLAM_VIEWER_MAPDRAWER_H
 
-#define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+#include <mutex>
+#include <pangolin/pangolin.h>
+#include <Eigen/Dense>
+#include <opencv2/core/core.hpp>
+#include "Map.h"
 
-#include <iostream>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
+namespace MapGen {
 
-void init_logging();
+class MapDrawer {
+ public:
+    MapDrawer(Map *map);
 
-inline void LOG_INFO(const std::string& msg);
+    void DrawMapPoints();
+    void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
 
+ private:
+    Map * map_;
 
-#endif //SLAM_MAPGEN_LOGGING_UTIL_H
+ public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+
+}  // namespace SLAM_VIEWER
+
+#endif  // SLAM_VIEWER_MAPDRAWER_H

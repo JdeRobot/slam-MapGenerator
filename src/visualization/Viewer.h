@@ -1,6 +1,6 @@
 /**
  *
- *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *  Copyright (C) 2018 Eduardo Perdices <eperdices at gsyc dot es>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,19 +17,40 @@
  *
  */
 
-#ifndef SLAM_MAPGEN_LOGGING_UTIL_H
-#define SLAM_MAPGEN_LOGGING_UTIL_H
+#ifndef SLAM_VIEWER_VIEWER_H
+#define SLAM_VIEWER_VIEWER_H
 
-#define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+#include <mutex>
+#include <string>
+#include "MapDrawer.h"
 
-#include <iostream>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
+namespace MapGen {
 
-void init_logging();
+class MapDrawer;
+class System;
 
-inline void LOG_INFO(const std::string& msg);
+class Viewer {
+ public:
+    Viewer(MapDrawer* pMapDrawer);
 
+    // Main thread function. Draw points, keyframes, and connections. We use Pangolin.
+    void Run();
 
-#endif //SLAM_MAPGEN_LOGGING_UTIL_H
+    void RequestFinish();
+
+    bool isFinished();
+
+ private:
+    MapDrawer* mpMapDrawer;
+
+    bool CheckFinish();
+    void SetFinish();
+    bool mbFinishRequested;
+    bool mbFinished;
+    std::mutex mMutexFinish;
+};
+
+}  // namespace SLAM_VIEWER
+
+#endif  // SLAM_VIEWER_VIEWER_H
+
