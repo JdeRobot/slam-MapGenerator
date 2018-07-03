@@ -4,7 +4,15 @@
 
 #include "LoopConnection.h"
 
+
+
 namespace MapGen{
+
+    LoopConnection::LoopConnection(const std::pair<KeyFrame *, KeyFrame *> &loop_closing_pair,
+                                   cv::BFMatcher &matcher) {
+        throw std::runtime_error("No implementation yet!");
+    }
+
     cv::Mat LoopConnection::get_sim3() {
         return sle_;
     }

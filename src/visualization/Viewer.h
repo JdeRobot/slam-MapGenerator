@@ -22,6 +22,9 @@
 
 #include <mutex>
 #include <string>
+#include <pangolin/pangolin.h>
+#include <unistd.h>
+#include "Config.h"
 #include "MapDrawer.h"
 
 namespace MapGen {

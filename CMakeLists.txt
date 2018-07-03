@@ -76,11 +76,13 @@ target_link_libraries(
         )
 
 add_executable(view_test src/tests/view_test.cpp
-        ${loop_detector_src}
         ${common_src}
         ${logging_src}
         ${visualization_src})
-target_link_libraries(view_test ${OpenCV_LIBS} ${Pangolin_LIBRARIES})
+target_link_libraries(view_test ${OpenCV_LIBS}
+        ${Pangolin_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${DBoW2_LIBS})
 
 #add_executable(play src/play.cpp)
 #target_link_libraries(play ${OpenCV_LIBS}
