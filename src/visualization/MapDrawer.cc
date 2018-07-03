@@ -120,38 +120,22 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
     }
 }
 
-    void MapDrawer::DrawTriangle(const Eigen::Vector3f &triangle) {
-        static const GLfloat g_vertex_buffer_data[] = {
-                -1.0f, -1.0f, 0.0f,
-                1.0f, -1.0f, 0.0f,
-                0.0f,  1.0f, 0.0f,
-        };
+    void MapDrawer::DrawTriangle(const Eigen::Vector3f &v1, const Eigen::Vector3f &v2, const Eigen::Vector3f &v3) {
+        std::cout << "[DEBUG, MapDrawer.cc] Draw once" << std::endl;
 
-        // ============ Need to be done only once ==========================
-        // This will identify our vertex buffer
-        GLuint vertexbuffer;
-        // Generate 1 buffer, put the resulting identifier in vertexbuffer
-        glGenBuffers(1, &vertexbuffer);
-        // The following commands will talk about our 'vertexbuffer' buffer
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        // Give our vertices to OpenGL.
-        glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-        // ============ Need to be done only once ==========================
+        glBegin(GL_TRIANGLES);
 
-        // 1st attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glVertexAttribPointer(
-                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-        );
-        // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-        glDisableVertexAttribArray(0);
+        glColor3f(0.0, 0.0, 1.0);
+
+        // the first vertex
+        glVertex3f(v1(0),v1(1),v1(2));
+        // the second vertex
+        glVertex3f(v2(0),v2(1),v2(2));
+        // the third vertex
+        glVertex3f(v3(0),v3(1),v3(2));
+
+        glEnd();
+
     }
 
 }  // namespace SLAM_VIEWER

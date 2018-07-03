@@ -80,8 +80,10 @@ void Viewer::Run() {
             mpMapDrawer->DrawMapPoints();
         if (menuShowSurface){
             // TODO: for test only
-            Eigen::Vector3f tmp;
-            mpMapDrawer->DrawTriangle(tmp);
+            Eigen::Vector3f v1(-1.0f,-1.0f,-1.0f);
+            Eigen::Vector3f v2(1.0f,-1.0f,-0.0f);
+            Eigen::Vector3f v3(0.0f,1.0f,-0.0f);
+            mpMapDrawer->DrawTriangle(v1,v2,v3);
         }
 
         pangolin::FinishFrame();
