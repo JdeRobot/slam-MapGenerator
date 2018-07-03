@@ -120,11 +120,10 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
     }
 }
 
-    void MapDrawer::DrawTriangle(const Eigen::Vector3f &v1, const Eigen::Vector3f &v2, const Eigen::Vector3f &v3) {
-        std::cout << "[DEBUG, MapDrawer.cc] Draw once" << std::endl;
+    void MapDrawer::DrawTriangle(const Eigen::Vector3f &v1, const Eigen::Vector3f &v2, const Eigen::Vector3f &v3, bool draw_border) {
+        // std::cout << "[DEBUG, MapDrawer.cc] Draw once" << std::endl;
 
         glBegin(GL_TRIANGLES);
-
         glColor3f(0.0, 0.0, 1.0);
 
         // the first vertex
@@ -133,8 +132,22 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
         glVertex3f(v2(0),v2(1),v2(2));
         // the third vertex
         glVertex3f(v3(0),v3(1),v3(2));
-
         glEnd();
+
+        if (draw_border){
+            glBegin(GL_LINES);
+            glColor4f(0.0, 0.0, 0.0, 0.5);
+            // the first line
+            glVertex3f(v1(0),v1(1),v1(2));
+            glVertex3f(v2(0),v2(1),v2(2));
+            // the second line
+            glVertex3f(v2(0),v2(1),v2(2));
+            glVertex3f(v3(0),v3(1),v3(2));
+            // the third line
+            glVertex3f(v1(0),v1(1),v1(2));
+            glVertex3f(v3(0),v3(1),v3(2));
+            glEnd();
+        }
 
     }
 
