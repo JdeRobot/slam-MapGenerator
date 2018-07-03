@@ -24,7 +24,7 @@ namespace MapGen {
     LoopDetectionConfig::LoopDetectionConfig(std::string filename) {
         cv::FileStorage fs(filename, cv::FileStorage::READ);
         if (!fs.isOpened()){
-            BOOST_LOG_TRIVIAL(error) << "Fail to read the config file: " << filename;
+            BOOST_LOG_TRIVIAL(fatal) << "Fail to read the config file: " << filename;
             throw std::runtime_error("Fail to read the config file: " + filename);
         }
 
@@ -33,11 +33,25 @@ namespace MapGen {
         if ((img_dir_.length() > 0) && (img_dir_[img_dir_.length() - 1] != '/')){
             img_dir_.push_back('/');
         }
-        // TODO: check directory exist
+        // check directory exist
+        struct stat sb;
+        if ((stat(img_dir_.c_str(), &sb) == -1) || (!S_ISDIR(sb.st_mode))){
+            std::string err_msg = "img_dir: " + img_dir_ + " does not exist.";
+            BOOST_LOG_TRIVIAL(fatal) << err_msg;
+            throw std::runtime_error(err_msg);
+        }
 
         fs["trajectory"] >> trajectory_;
         fs["Vocabulary"] >> vocabulary_;
         fs["loop_detection_threshold"] >> threshold_;
+
+        // print nice info
+        BOOST_LOG_TRIVIAL(info) << "==================================Config================================";
+        BOOST_LOG_TRIVIAL(info) << "img_dir: " << img_dir_;
+        BOOST_LOG_TRIVIAL(info) << "trajectory: " << trajectory_;
+        BOOST_LOG_TRIVIAL(info) << "Vocabulary: " << vocabulary_;
+        BOOST_LOG_TRIVIAL(info) << "loop_detection_threshold: " << threshold_;
+        BOOST_LOG_TRIVIAL(info) << "========================================================================";
     }
 
     std::string LoopDetectionConfig::get_img_dir() {return img_dir_;}

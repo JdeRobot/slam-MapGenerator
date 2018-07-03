@@ -21,6 +21,7 @@
 #include "LoopDetectionConfig.h"
 #include "Map.h"
 #include "LoopDetector.h"
+#include "LoopConnection.h"
 #include "logging_util.h"
 
 using namespace MapGen;
@@ -54,6 +55,17 @@ int main (int argc, const char * argv[]){
     }
 
     BOOST_LOG_TRIVIAL(info) << "Detection Completed";
+
+    // try to close the loop
+    // create a BFMatcher
+    cv::BFMatcher matcher;
+    vector<LoopConnection *> loop_connections;
+    for (auto p : closing_pairs){
+        loop_connections.push_back(new LoopConnection(p,matcher));
+    }
+
+
+    // TODO: delete all elements in loop_connections (memory leak)
 
     return 0;
 }

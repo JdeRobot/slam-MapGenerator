@@ -179,4 +179,20 @@ DBoW2::BowVector KeyFrame::getBowVector() {
     return bow_vector_;
 }
 
+void KeyFrame::setKeypoints(const std::vector<cv::KeyPoint> &keypoints) {
+    keypoints_ = keypoints;
+}
+
+std::vector<cv::KeyPoint> KeyFrame::getKeypoints() {
+    return keypoints_;
+}
+
+void KeyFrame::setDesciptor(const cv::Mat &descriptor) {
+    descriptor_ = descriptor;
+}
+
+cv::Mat KeyFrame::getDescriptor() {
+    return descriptor_;
+}
+
 }  // namespace SLAM_VIEWER

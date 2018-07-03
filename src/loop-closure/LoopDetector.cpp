@@ -54,12 +54,20 @@ namespace MapGen {
             std::string img_path = img_dir_ + frame->GetFilename();
             cv::Mat img = cv::imread(img_path);
 
+            //
             // compute ORB features
+            //
             cv::Mat mask;
             std::vector<cv::KeyPoint> keypoints;
             cv::Mat descriptors;
             orb_->detectAndCompute(img, mask, keypoints, descriptors);
+            // save the ORB feature
+            frame->setKeypoints(keypoints);
+            frame->setDesciptor(descriptors);
 
+            //
+            // convert feature to bow vector
+            //
             // change the structure of descriptors
             std::vector<cv::Mat> features;
             features.resize(descriptors.rows);
@@ -71,12 +79,8 @@ namespace MapGen {
             DBoW2::BowVector v_tmp;
             voc_.transform(features,v_tmp);
             frame->setBowVector(v_tmp);
-
-            // append the features of current image to features_all
-            // features_all.push_back(features);
         }
 
-        // BOOST_LOG_TRIVIAL(info) << "size of features_all: " << features_all.size();
     }
 
     std::vector<std::pair<KeyFrame *, KeyFrame *>> LoopDetector::getLoopClosingPairs() {

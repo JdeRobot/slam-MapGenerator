@@ -54,16 +54,17 @@ namespace MapGen {
         void computeAllFeatures(MapGen::Map &, const std::string &);
         void detectLoops(MapGen::Map &map);
 
+        // Manually set threshold for determining whether two frames are a loop closure pair.
         double loop_closure_thres_;
 
         // the directory to raw RGB image
         std::string img_dir_;
 
-        // TODO: tun the parameter of orb vocabulary
         ORBVocabularyExt voc_;
         cv::Ptr<cv::ORB> orb_;
 
         std::vector<std::pair<KeyFrame *, KeyFrame *>> loop_closure_pairs_;
+        std::map<int, cv::Mat> orb_features_;
     };
 
 }
