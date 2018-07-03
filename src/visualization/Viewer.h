@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include "Config.h"
 #include "MapDrawer.h"
+#include "logging_util.h"
 
 namespace MapGen {
 

@@ -41,7 +41,7 @@ include_directories(src/common
 # common
 file(GLOB common_src src/common/*(.h|.cpp))
 file(GLOB dow2_ext_src src/DBoW2-ext/*(.h|.cpp))
-file(GLOB logging_src src/logging/*(.h|.cpp))
+file(GLOB logging_src src/logging/*.cpp)
 file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
@@ -74,6 +74,8 @@ target_link_libraries(
         ${DLib_LIBS}
         ${Boost_LIBRARIES}
         )
+
+MESSAGE("logging_src: ${logging_src}")
 
 add_executable(view_test src/tests/view_test.cpp
         ${common_src}

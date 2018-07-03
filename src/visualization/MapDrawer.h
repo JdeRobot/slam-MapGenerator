@@ -34,6 +34,7 @@ class MapDrawer {
 
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
+    void DrawTriangle(const Eigen::Vector3f& triangle);
 
  private:
     Map * map_;
