@@ -86,8 +86,5 @@ target_link_libraries(view_test ${OpenCV_LIBS}
         ${Boost_LIBRARIES}
         ${DBoW2_LIBS})
 
-#add_executable(play src/play.cpp)
-#target_link_libraries(play ${OpenCV_LIBS}
-#        ${DBoW2_LIBS}
-#        ${DLib_LIBS}
-#        ${Boost_LIBRARIES})
+# =================== playground ===================
+add_subdirectory(playground)
