@@ -3,7 +3,7 @@ project(slam-MapGen)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS OFF)
 set(CMAKE_CXX_FLAGS "-pthread")
 
 # config logging (auto-generation for different release build)
@@ -50,20 +50,28 @@ file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 find_package(Boost COMPONENTS log log_setup thread date_time filesystem system REQUIRED)
 include_directories( ${Boost_INCLUDE_DIRS} )
 
+#PCL
+find_package(PCL 1.2 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+
+
 # Loop-detector
 file(GLOB loop_detector_src src/loop-closure/*)
-add_executable(loop_detection
-        ${loop_detector_src}
-        ${common_src}
-        ${dow2_ext_src}
-        ${logging_src}
-        ${config_src}
-        ${orb2_src})
-target_link_libraries( loop_detection ${OpenCV_LIBS}
-        ${DBoW2_LIBS}
-        ${DLib_LIBS}
-        ${Boost_LIBRARIES}
-        )
+#add_executable(loop_detection
+#        ${loop_detector_src}
+#        ${common_src}
+#        ${dow2_ext_src}
+#        ${logging_src}
+#        ${config_src}
+#        ${orb2_src})
+#target_link_libraries( loop_detection ${OpenCV_LIBS}
+#        ${DBoW2_LIBS}
+#        ${DLib_LIBS}
+#        ${Boost_LIBRARIES}
+#        )
 
 # Vocabulary Converter
 add_executable(voc_converter src/tools/VocabularyConverter.cpp ${logging_src} ${dow2_ext_src})
@@ -85,6 +93,17 @@ target_link_libraries(view_test ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
         ${Boost_LIBRARIES}
         ${DBoW2_LIBS})
+
+add_executable(surface_recon src/tests/surface_recon.cpp
+        ${common_src}
+        ${logging_src}
+        ${config_src}
+        ${visualization_src})
+target_link_libraries(surface_recon ${OpenCV_LIBS}
+        ${Pangolin_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${DBoW2_LIBS}
+        ${PCL_LIBRARIES})
 
 # =================== playground ===================
 add_subdirectory(playground)

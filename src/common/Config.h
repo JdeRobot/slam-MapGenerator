@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 #include <opencv2/core/core.hpp>
-#include <boost/log/trivial.hpp>
+#include "logging_util.h"
 #include "Map.h"
 
 namespace MapGen {

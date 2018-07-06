@@ -49,11 +49,11 @@ bool Config::ReadParameters(std::string filename, Map &map) {
         // Read config file
         fs.open(filename.c_str(), cv::FileStorage::READ);
         if (!fs.isOpened()) {
-            BOOST_LOG_TRIVIAL(error) << "Failed to open file: " << filename;
+            LOG_ERROR << "Failed to open file: " << filename;
             return false;
         }
     } catch(cv::Exception &ex) {
-        BOOST_LOG_TRIVIAL(error) << "Parse error: " << ex.what() << filename;
+        LOG_ERROR << "Parse error: " << ex.what() << filename;
         return false;
     }
 
@@ -114,7 +114,7 @@ bool Config::ReadParameters(std::string filename, Map &map) {
             if (kf != nullptr) {
                 kf->AddObservation(mp, pixel);
             } else {
-                BOOST_LOG_TRIVIAL(debug) << "Observation ignored, KeyFrame "<< kf_id  << " not found";
+                LOG_DEBUG << "Observation ignored, KeyFrame "<< kf_id  << " not found";
             }
         }
     }

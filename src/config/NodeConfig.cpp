@@ -17,14 +17,14 @@
  *
  */
 
-#include "LoopDetectionConfig.h"
+#include "NodeConfig.h"
 
 namespace MapGen {
 
-    LoopDetectionConfig::LoopDetectionConfig(std::string filename) {
+    NodeConfig::NodeConfig(std::string filename) {
         cv::FileStorage fs(filename, cv::FileStorage::READ);
         if (!fs.isOpened()){
-            BOOST_LOG_TRIVIAL(fatal) << "Fail to read the config file: " << filename;
+            LOG_ERROR << "Fail to read the config file: " << filename;
             throw std::runtime_error("Fail to read the config file: " + filename);
         }
 
@@ -37,7 +37,7 @@ namespace MapGen {
         struct stat sb;
         if ((stat(img_dir_.c_str(), &sb) == -1) || (!S_ISDIR(sb.st_mode))){
             std::string err_msg = "img_dir: " + img_dir_ + " does not exist.";
-            BOOST_LOG_TRIVIAL(fatal) << err_msg;
+            LOG_ERROR << err_msg;
             throw std::runtime_error(err_msg);
         }
 
@@ -46,17 +46,17 @@ namespace MapGen {
         fs["loop_detection_threshold"] >> threshold_;
 
         // print nice info
-        BOOST_LOG_TRIVIAL(info) << "==================================Config================================";
-        BOOST_LOG_TRIVIAL(info) << "img_dir: " << img_dir_;
-        BOOST_LOG_TRIVIAL(info) << "trajectory: " << trajectory_;
-        BOOST_LOG_TRIVIAL(info) << "Vocabulary: " << vocabulary_;
-        BOOST_LOG_TRIVIAL(info) << "loop_detection_threshold: " << threshold_;
-        BOOST_LOG_TRIVIAL(info) << "========================================================================";
+        LOG_INFO << "==================================Config================================";
+        LOG_INFO << "img_dir: " << img_dir_;
+        LOG_INFO << "trajectory: " << trajectory_;
+        LOG_INFO << "Vocabulary: " << vocabulary_;
+        LOG_INFO << "loop_detection_threshold: " << threshold_;
+        LOG_INFO << "========================================================================";
     }
 
-    std::string LoopDetectionConfig::get_img_dir() {return img_dir_;}
-    std::string LoopDetectionConfig::get_trajectory() {return trajectory_;}
-    std::string LoopDetectionConfig::get_vocabulary() {return vocabulary_;}
-    double LoopDetectionConfig::get_threshold() {return threshold_;}
+    std::string NodeConfig::get_img_dir() {return img_dir_;}
+    std::string NodeConfig::get_trajectory() {return trajectory_;}
+    std::string NodeConfig::get_vocabulary() {return vocabulary_;}
+    double NodeConfig::get_threshold() {return threshold_;}
 
 }

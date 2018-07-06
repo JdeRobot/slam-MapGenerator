@@ -28,9 +28,9 @@
 #include <logging_util.h>
 
 namespace MapGen {
-    class LoopDetectionConfig {
+    class NodeConfig {
     public:
-        explicit LoopDetectionConfig(std::string filename);
+        explicit NodeConfig(std::string filename);
 
         std::string get_img_dir();
 
