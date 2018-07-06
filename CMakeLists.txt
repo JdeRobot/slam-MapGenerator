@@ -42,6 +42,7 @@ include_directories(src/common
         src/tools
         src/visualization
         src/DBoW2-ext
+        src/surface_recon
         third-party/ORB2_SLAM
         )
 
@@ -54,6 +55,7 @@ file(GLOB logging_src src/logging/*.cpp)
 file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
+file(GLOB surface_recon_src src/surface_recon/*)
 
 
 # Loop-detector
@@ -94,7 +96,9 @@ add_executable(surface_recon src/tests/surface_recon.cpp
         ${common_src}
         ${logging_src}
         ${config_src}
-        ${visualization_src})
+        ${visualization_src}
+        ${surface_recon_src}
+        )
 target_link_libraries(surface_recon ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
         ${DBoW2_LIBS}
