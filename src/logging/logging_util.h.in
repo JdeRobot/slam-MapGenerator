@@ -24,11 +24,10 @@
 
 #include <iostream>
 
-#define LOG_INFO  std::cout << "[INFO] "
-
-#define LOG_DEBUG  if (CMAKE_BUILD_TYPE == "Debug") std::cout << "[DEBUG] "
-
-#define LOG_ERROR    std::cerr << "[ERROR] "
+// make nice log message
+#define LOG_INFO  std::cout << "[INFO, " <<basename(__FILE__)<< "] "
+#define LOG_DEBUG  if (CMAKE_BUILD_TYPE != "Release") std::cout << "[DEBUG, "<<basename(__FILE__)<<"] "
+#define LOG_ERROR    std::cerr << "[ERROR, "<<basename(__FILE__)<<"] "
 
 void init_logging();
 

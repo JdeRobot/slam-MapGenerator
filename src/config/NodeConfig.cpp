@@ -24,7 +24,7 @@ namespace MapGen {
     NodeConfig::NodeConfig(std::string filename) {
         cv::FileStorage fs(filename, cv::FileStorage::READ);
         if (!fs.isOpened()){
-            LOG_ERROR << "Fail to read the config file: " << filename;
+            LOG_ERROR << "Fail to read the config file: " << filename << std::endl;
             throw std::runtime_error("Fail to read the config file: " + filename);
         }
 
@@ -36,9 +36,7 @@ namespace MapGen {
         // check directory exist
         struct stat sb;
         if ((stat(img_dir_.c_str(), &sb) == -1) || (!S_ISDIR(sb.st_mode))){
-            std::string err_msg = "img_dir: " + img_dir_ + " does not exist.";
-            LOG_ERROR << err_msg;
-            throw std::runtime_error(err_msg);
+            img_dir_ = "";
         }
 
         fs["trajectory"] >> trajectory_;
@@ -46,15 +44,22 @@ namespace MapGen {
         fs["loop_detection_threshold"] >> threshold_;
 
         // print nice info
-        LOG_INFO << "==================================Config================================";
-        LOG_INFO << "img_dir: " << img_dir_;
-        LOG_INFO << "trajectory: " << trajectory_;
-        LOG_INFO << "Vocabulary: " << vocabulary_;
-        LOG_INFO << "loop_detection_threshold: " << threshold_;
-        LOG_INFO << "========================================================================";
+        LOG_INFO << "==================================Config================================" << std::endl;
+        LOG_INFO << "img_dir: " << img_dir_ << std::endl;
+        LOG_INFO << "trajectory: " << trajectory_ << std::endl;
+        LOG_INFO << "Vocabulary: " << vocabulary_ << std::endl;
+        LOG_INFO << "loop_detection_threshold: " << threshold_ << std::endl;
+        LOG_INFO << "========================================================================" <<std::endl;
     }
 
-    std::string NodeConfig::get_img_dir() {return img_dir_;}
+    std::string NodeConfig::get_img_dir() {
+        if (img_dir_.size() == 0){
+            LOG_ERROR << "img_dir: " << img_dir_ << " does not exist." << std::endl;
+            throw std::runtime_error("");
+        }
+
+        return img_dir_;
+    }
     std::string NodeConfig::get_trajectory() {return trajectory_;}
     std::string NodeConfig::get_vocabulary() {return vocabulary_;}
     double NodeConfig::get_threshold() {return threshold_;}

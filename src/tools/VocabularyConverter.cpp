@@ -27,19 +27,19 @@
 
 int main(int argc, const char * argv[]){
     if (argc != 3){
-        BOOST_LOG_TRIVIAL(error) << "Invalid Usage";
+        LOG_ERROR << "Invalid Usage" << std::endl;
         return 1;
     }
 
     MapGen::ORBVocabularyExt voc;
     // load vocabulary
     if (!voc.loadFromTextFile(argv[1])){
-        BOOST_LOG_TRIVIAL(error) << "Failed to load from " + std::string(argv[1]);
+        LOG_ERROR << "Failed to load from " + std::string(argv[1]) << std::endl;
     }
 
     // save vocabulary
     voc.save(argv[2]);
-    BOOST_LOG_TRIVIAL(info) << "Vocabulary saved to file: " + std::string(argv[2]);
+    LOG_ERROR << "Vocabulary saved to file: " + std::string(argv[2]) << std::endl;
 
     return 0;
 

@@ -27,6 +27,13 @@ find_package(Pangolin REQUIRED)
 include_directories(${Pangolin_INCLUDE_DIRS})
 ADD_DEFINITIONS(-DPANGOLIN)
 
+
+#PCL
+find_package(PCL 1.2 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 # src
 include_directories(src/common
         src/loop-closure
@@ -38,6 +45,8 @@ include_directories(src/common
         third-party/ORB2_SLAM
         )
 
+
+
 # common
 file(GLOB common_src src/common/*(.h|.cpp))
 file(GLOB dow2_ext_src src/DBoW2-ext/*(.h|.cpp))
@@ -45,17 +54,6 @@ file(GLOB logging_src src/logging/*.cpp)
 file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
-
-# boost (for logging)
-find_package(Boost COMPONENTS log log_setup thread date_time filesystem system REQUIRED)
-include_directories( ${Boost_INCLUDE_DIRS} )
-
-#PCL
-find_package(PCL 1.2 REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-
 
 
 # Loop-detector
@@ -80,7 +78,6 @@ target_link_libraries(
         ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}
-        ${Boost_LIBRARIES}
         )
 
 MESSAGE("logging_src: ${logging_src}")
@@ -91,7 +88,6 @@ add_executable(view_test src/tests/view_test.cpp
         ${visualization_src})
 target_link_libraries(view_test ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
-        ${Boost_LIBRARIES}
         ${DBoW2_LIBS})
 
 add_executable(surface_recon src/tests/surface_recon.cpp
@@ -101,7 +97,6 @@ add_executable(surface_recon src/tests/surface_recon.cpp
         ${visualization_src})
 target_link_libraries(surface_recon ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
-        ${Boost_LIBRARIES}
         ${DBoW2_LIBS}
         ${PCL_LIBRARIES})
 

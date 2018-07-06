@@ -14,7 +14,7 @@ int main(int argc, const char *argv[]) {
     init_logging();
 
     if (argc != 2) {
-        LOG_ERROR << "Usage error";
+        LOG_ERROR << "Usage error" << std::endl;
         return 1;
     }
 
@@ -23,7 +23,7 @@ int main(int argc, const char *argv[]) {
 
     // read in the trajectory file
     if (!MapGen::Config::ReadParameters(config.get_trajectory(), map)) {
-        LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory();
+        LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory() << std::endl;
         return 1;
     }
 
@@ -37,4 +37,6 @@ int main(int argc, const char *argv[]) {
 
     // save all map points to PCL
     pcl::io::savePCDFileASCII("cloud.xyz", cloud);
+    LOG_DEBUG << "cloud saved" << std::endl;
+    return 0;
 }

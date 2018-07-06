@@ -1,0 +1,6 @@
+%YAML:1.0
+---
+img_dir: ""
+trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectoryRGBD.yaml"
+Vocabulary: ""
+loop_detection_threshold: 

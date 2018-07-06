@@ -27,16 +27,16 @@ namespace MapGen {
         // initialize variables
         orb_ = cv::ORB::create();
 
-        BOOST_LOG_TRIVIAL(info) << "Loading voc from " << pretrained_voc;
+        LOG_INFO << "Loading voc from " << pretrained_voc;
         std::regex e ("(.*)(.txt)");
         if (std::regex_match(pretrained_voc,e)) {
-            BOOST_LOG_TRIVIAL(debug) << "txt file detected";
+            LOG_DEBUG << "txt file detected";
             voc_.loadFromTextFile(pretrained_voc);
         }
         else{
             voc_.load(pretrained_voc);
         }
-        BOOST_LOG_TRIVIAL(info) << "Loaded voc from " << pretrained_voc;
+        LOG_INFO << "Loaded voc from " << pretrained_voc;
 
         // compute all features
         computeAllFeatures(map, img_dir);

@@ -35,7 +35,7 @@
 #include <BowVector.h>
 #include "ORBVocabularyExt.h"
 
-#include <boost/log/trivial.hpp>
+#include "logging_util.h"
 
 using namespace MapGen;
 
