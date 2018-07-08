@@ -28,6 +28,10 @@
 #include <logging_util.h>
 
 namespace MapGen {
+
+    bool is_dir_exist(const std::string& dir_name);
+    bool is_file_exist(const std::string& file_name);
+
     class NodeConfig {
     public:
         explicit NodeConfig(std::string filename);
@@ -35,8 +39,9 @@ namespace MapGen {
         std::string get_img_dir();
 
         std::string get_trajectory();
-
+        std::string get_pointcloud();
         std::string get_vocabulary();
+        bool use_trajectory();
 
         double get_threshold();
 
@@ -44,7 +49,10 @@ namespace MapGen {
         std::string img_dir_;
         std::string trajectory_;
         std::string vocabulary_;
+        std::string pc_filename_;
         double threshold_;
+
+        bool use_trajectory_;
     };
 }
 
