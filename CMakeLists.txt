@@ -3,9 +3,6 @@ project(slam-MapGen)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(Boost_USE_STATIC_LIBS OFF)
-set(CMAKE_CXX_FLAGS "-pthread")
-
 # config logging (auto-generation for different release build)
 MESSAGE("Generating logging_util.h for logging")
 configure_file("src/logging/logging_util.h.in" "${PROJECT_SOURCE_DIR}/src/logging/logging_util.h")
@@ -56,10 +53,10 @@ file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 file(GLOB surface_recon_src src/surface_recon/*)
+file(GLOB loop_detector_src src/loop-closure/*)
 
 
 # Loop-detector
-file(GLOB loop_detector_src src/loop-closure/*)
 #add_executable(loop_detection
 #        ${loop_detector_src}
 #        ${common_src}

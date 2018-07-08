@@ -22,18 +22,24 @@ int main(int argc, const char *argv[]) {
     NodeConfig config(argv[1]);
     MapGen::Map map;
 
-    // read in the trajectory file
-    if (!MapGen::Config::ReadParameters(config.get_trajectory(), map)) {
-        LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory() << std::endl;
-        return 1;
-    }
-
-    // convert all points to PCL format
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    auto points = map.GetAllMapPoints();
-    for (auto point : points){
-        auto pos = point->GetWorldPos();
-        cloud->push_back(PointXYZ(pos[0], pos[1], pos[2]));
+
+    if (config.use_trajectory()) {
+        // read in the trajectory file
+        if (!MapGen::Config::ReadParameters(config.get_trajectory(), map)) {
+            LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory() << std::endl;
+            return 1;
+        }
+
+        // convert all points to PCL format
+        auto points = map.GetAllMapPoints();
+        for (auto point : points) {
+            auto pos = point->GetWorldPos();
+            cloud->push_back(PointXYZ(pos[0], pos[1], pos[2]));
+        }
+    }
+    else{
+        pcl::io::loadPCDFile(config.get_pointcloud(),*cloud);
     }
 
     // save all map points to PCL
@@ -42,8 +48,9 @@ int main(int argc, const char *argv[]) {
 
 
     // start recon
-    auto triangles = pcl_fast_surface_recon(cloud);
-    pcl::io::saveVTKFile("mash.vtk",triangles);
-    LOG_DEBUG << "raw pointcloud saved to : cloud.xyz" << std::endl;
+    // auto triangles = pcl_fast_surface_recon(cloud);
+    auto triangles = pcl_poisson_recon(cloud);
+    pcl::io::saveVTKFile("mesh.vtk",triangles);
+    LOG_DEBUG << "mesh saved to : mesh.vtk" << std::endl;
     return 0;
 }

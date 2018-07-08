@@ -1,6 +1,8 @@
 %YAML:1.0
 ---
 img_dir: ""
+use_trajectory: 0
 trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectoryRGBD.yaml"
+pointcloud: "/home/ernest/SLAM/datasets/cloud.pcd"
 Vocabulary: ""
 loop_detection_threshold: 
