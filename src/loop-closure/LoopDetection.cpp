@@ -30,17 +30,17 @@ int main (int argc, const char * argv[]){
     init_logging();
 
     if (argc != 2){
-        BOOST_LOG_TRIVIAL(error) << "Usage error";
+        LOG_ERROR << "Usage error" <<std::endl;
         return 1;
     }
 
 
-    LoopDetectionConfig config(argv[1]);
+    NodeConfig config(argv[1]);
     Map map;
 
     // read in the trajectory file
     if(!MapGen::Config::ReadParameters(config.get_trajectory(), map)){
-        BOOST_LOG_TRIVIAL(error) << "fail to read the trajectory file at: " << config.get_trajectory();
+        LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory() << std::endl;
         return 1;
     }
 
@@ -50,18 +50,21 @@ int main (int argc, const char * argv[]){
     // print out the loop detection pair
     auto closing_pairs = detector.getLoopClosingPairs();
     for (auto p : closing_pairs){
-        BOOST_LOG_TRIVIAL(info) << "detected loop closing pair: " << p.first->GetFilename() << " & "
-                                << p.second->GetFilename();
+        LOG_INFO << "detected loop closing pair: " << p.first->GetFilename() << " & "
+                                << p.second->GetFilename() << std::endl;
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Detection Completed";
+    LOG_INFO << "Detection Completed" << std::endl;
+
+    // TODO: get the camera intrinsic matrix
+    cv::Mat K;
 
     // try to close the loop
     // create a BFMatcher
     cv::BFMatcher matcher;
     vector<LoopConnection *> loop_connections;
     for (auto p : closing_pairs){
-        loop_connections.push_back(new LoopConnection(p,matcher));
+        loop_connections.push_back(new LoopConnection(p, K));
     }
 
 

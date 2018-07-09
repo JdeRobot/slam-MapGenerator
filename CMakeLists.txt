@@ -57,18 +57,18 @@ file(GLOB loop_detector_src src/loop-closure/*)
 
 
 # Loop-detector
-#add_executable(loop_detection
-#        ${loop_detector_src}
-#        ${common_src}
-#        ${dow2_ext_src}
-#        ${logging_src}
-#        ${config_src}
-#        ${orb2_src})
-#target_link_libraries( loop_detection ${OpenCV_LIBS}
-#        ${DBoW2_LIBS}
-#        ${DLib_LIBS}
-#        ${Boost_LIBRARIES}
-#        )
+add_executable(loop_detection
+        ${loop_detector_src}
+        ${common_src}
+        ${dow2_ext_src}
+        ${logging_src}
+        ${config_src}
+        ${orb2_src})
+target_link_libraries( loop_detection ${OpenCV_LIBS}
+        ${DBoW2_LIBS}
+        ${DLib_LIBS}
+        ${Boost_LIBRARIES}
+        )
 
 # Vocabulary Converter
 add_executable(voc_converter src/tools/VocabularyConverter.cpp ${logging_src} ${dow2_ext_src})

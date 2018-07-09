@@ -8,20 +8,24 @@
 #include "KeyFrame.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
 #include <exception>
 
 namespace MapGen {
 
     class LoopConnection {
     public:
-        LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair, cv::BFMatcher& matcher);
+        LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair, const cv::Mat& K);
 
         // get the relative pose between two frames
-        cv::Mat get_sim3();
+        cv::Mat get_essential();
+        cv::Mat get_translation();
+        cv::Mat get_rotation();
 
     private:
-        // the essential matrix between two frames
-        cv::Mat sle_;
+        // the rotation and translation matrix between two matrix
+        cv::Mat r_;
+        cv::Mat t_;
     };
 
 }
