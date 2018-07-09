@@ -18,12 +18,12 @@ namespace MapGen{
         auto raw_points_1 = loop_closing_pair.first->getKeypoints();
         auto raw_points_2 = loop_closing_pair.second->getKeypoints();
 
-        std::vector<cv::KeyPoint> matched_points_1;
-        std::vector<cv::KeyPoint> matched_points_2;
+        std::vector<cv::Point2f> matched_points_1;
+        std::vector<cv::Point2f> matched_points_2;
         for (auto x : macthes){
             // query & training
-            matched_points_1.push_back(raw_points_1[x.queryIdx]);
-            matched_points_2.push_back(raw_points_2[x.trainIdx]);
+            matched_points_1.push_back(raw_points_1[x.queryIdx].pt);
+            matched_points_2.push_back(raw_points_2[x.trainIdx].pt);
         }
 
         cv::Mat F = cv::findFundamentalMat(matched_points_1,matched_points_2,cv::FM_RANSAC,1,0.99);
@@ -46,6 +46,10 @@ namespace MapGen{
     }
 
     cv::Mat LoopConnection::get_translation() {
+        return t_;
+    }
 
+    cv::Mat LoopConnection::get_rotation(){
+        return r_;
     }
 }

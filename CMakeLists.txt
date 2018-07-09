@@ -57,14 +57,14 @@ file(GLOB loop_detector_src src/loop-closure/*)
 
 
 # Loop-detector
-add_executable(loop_detection
+add_executable(loop_closing src/tests/loop_closing.cpp
         ${loop_detector_src}
         ${common_src}
         ${dow2_ext_src}
         ${logging_src}
         ${config_src}
         ${orb2_src})
-target_link_libraries( loop_detection ${OpenCV_LIBS}
+target_link_libraries( loop_closing ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}
         ${Boost_LIBRARIES}

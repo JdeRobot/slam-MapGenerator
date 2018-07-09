@@ -11,12 +11,13 @@ namespace MapGen{
     }
 
     cv::Mat Camera::get_intrinsic_matrix(){
-    	cv::Mat K = cv::Mat(3,3,cv::CV_32F);
-    	K(0,0) = params_.fx;
-    	K(1,1) = params_.fy;
-    	K(0,2) = params_.cx;
-    	K(1,2) = params_.cy;
-    	K(2,2) = 1;
+    	cv::Mat K = cv::Mat::zeros(3,3,CV_64F);
+
+    	K.at<double>(0,0) = params_.fx;
+    	K.at<double>(1,1) = params_.fy;
+    	K.at<double>(0,2) = params_.cx;
+    	K.at<double>(1,2) = params_.cy;
+    	K.at<double>(2,2) = 1;
 
     	// TODO: for verification only
     	LOG_DEBUG << "K: " << std::endl;
@@ -24,4 +25,7 @@ namespace MapGen{
 
     	return K;
     }
+
+	// initialize a dummy one
+	Camera::Camera():params_() {}
 }

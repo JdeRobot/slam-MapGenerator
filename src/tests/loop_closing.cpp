@@ -23,6 +23,7 @@
 #include "LoopDetector.h"
 #include "LoopConnection.h"
 #include "logging_util.h"
+#include "Camera.h"
 
 using namespace MapGen;
 
@@ -37,9 +38,11 @@ int main (int argc, const char * argv[]){
 
     NodeConfig config(argv[1]);
     Map map;
+    Camera camera;
+
 
     // read in the trajectory file
-    if(!MapGen::Config::ReadParameters(config.get_trajectory(), map)){
+    if(!MapGen::Config::ReadParameters(config.get_trajectory(), map, camera)){
         LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory() << std::endl;
         return 1;
     }
@@ -56,15 +59,13 @@ int main (int argc, const char * argv[]){
 
     LOG_INFO << "Detection Completed" << std::endl;
 
-    // TODO: get the camera intrinsic matrix
-    cv::Mat K;
 
     // try to close the loop
     // create a BFMatcher
     cv::BFMatcher matcher;
     vector<LoopConnection *> loop_connections;
     for (auto p : closing_pairs){
-        loop_connections.push_back(new LoopConnection(p, K));
+        loop_connections.push_back(new LoopConnection(p, camera.get_intrinsic_matrix()));
     }
 
 

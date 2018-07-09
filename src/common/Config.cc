@@ -42,7 +42,7 @@ Config::Config() {
     kViewpointF_ = 500.0;
 }
 
-bool Config::ReadParameters(std::string filename, Map &map) {
+bool Config::ReadParameters(std::string filename, Map &map, Camera& cam) {
     cv::FileStorage fs;
 
     try {
@@ -69,6 +69,9 @@ bool Config::ReadParameters(std::string filename, Map &map) {
     camera["p1"] >> cdata.p1;
     camera["p2"] >> cdata.p2;
     camera["k3"] >> cdata.k3;
+
+    // copy the camera as an output
+    cam = Camera(cdata);
 
     // Read keyframes
     cv::FileNode keyframes = fs["keyframes"];
