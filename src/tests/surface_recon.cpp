@@ -43,13 +43,18 @@ int main(int argc, const char *argv[]) {
     }
 
     // save all map points to PCL
-    pcl::io::savePCDFileASCII("cloud.xyz", *cloud);
-    LOG_DEBUG << "raw pointcloud saved to : cloud.xyz" << std::endl;
+    // pcl::io::savePCDFileASCII("cloud.xyz", *cloud);
+    // LOG_DEBUG << "raw pointcloud saved to : cloud.xyz" << std::endl;
 
 
     // start recon
-    // auto triangles = pcl_fast_surface_recon(cloud);
-    auto triangles = pcl_poisson_recon(cloud);
+    pcl::PolygonMesh triangles;
+    if (config.use_fast_triangulation_recon()){
+        triangles = pcl_fast_surface_recon(cloud);
+    }
+    else if (config.use_poisson_recon()){
+        triangles = pcl_poisson_recon(cloud);
+    }
     pcl::io::saveVTKFile("mesh.vtk",triangles);
     LOG_DEBUG << "mesh saved to : mesh.vtk" << std::endl;
     return 0;

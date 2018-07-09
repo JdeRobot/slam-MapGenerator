@@ -59,6 +59,12 @@ namespace MapGen {
         fs["use_trajectory"] >> use_trajectory_;
         fs["loop_detection_threshold"] >> threshold_;
 
+        fs["use_fast_triangulation_recon"] >> use_fast_triangulation_recon_;
+        fs["use_poisson_recon"] >> use_poisson_recon_;
+        if (((int)use_fast_triangulation_recon_ + (int)use_poisson_recon_) > 1){
+            LOG_ERROR << "Enabled more than one surface reconstruction method." << std::endl;
+        }
+
         // print nice info
         LOG_INFO << "==================================Config================================" << std::endl;
         LOG_INFO << "img_dir: " << img_dir_ << std::endl;
@@ -79,8 +85,13 @@ namespace MapGen {
     std::string NodeConfig::get_trajectory() {return trajectory_;}
     std::string NodeConfig::get_pointcloud() {return pc_filename_;}
     std::string NodeConfig::get_vocabulary() {return vocabulary_;}
+
     double NodeConfig::get_threshold() {return threshold_;}
+
     bool NodeConfig::use_trajectory() {
         return use_trajectory_;
     }
+
+    bool NodeConfig::use_fast_triangulation_recon(){return use_fast_triangulation_recon_;}
+    bool NodeConfig::use_poisson_recon(){return use_poisson_recon_;}
 }
