@@ -23,13 +23,13 @@
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
 #include <iostream>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
+
+// make nice log message
+#define LOG_INFO  std::cout << "[INFO, " <<basename(__FILE__)<< "] "
+#define LOG_DEBUG  if (CMAKE_BUILD_TYPE != "Release") std::cout << "[DEBUG, "<<basename(__FILE__)<<"] "
+#define LOG_ERROR    std::cerr << "[ERROR, "<<basename(__FILE__)<<"] "
 
 void init_logging();
-
-inline void LOG_INFO(const std::string& msg);
 
 
 #endif //SLAM_MAPGEN_LOGGING_UTIL_H

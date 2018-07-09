@@ -3,9 +3,6 @@ project(slam-MapGen)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(Boost_USE_STATIC_LIBS ON)
-set(CMAKE_CXX_FLAGS "-pthread")
-
 # config logging (auto-generation for different release build)
 MESSAGE("Generating logging_util.h for logging")
 configure_file("src/logging/logging_util.h.in" "${PROJECT_SOURCE_DIR}/src/logging/logging_util.h")
@@ -27,6 +24,13 @@ find_package(Pangolin REQUIRED)
 include_directories(${Pangolin_INCLUDE_DIRS})
 ADD_DEFINITIONS(-DPANGOLIN)
 
+
+#PCL
+find_package(PCL 1.2 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 # src
 include_directories(src/common
         src/loop-closure
@@ -35,8 +39,11 @@ include_directories(src/common
         src/tools
         src/visualization
         src/DBoW2-ext
+        src/surface_recon
         third-party/ORB2_SLAM
         )
+
+
 
 # common
 file(GLOB common_src src/common/*(.h|.cpp))
@@ -45,25 +52,23 @@ file(GLOB logging_src src/logging/*.cpp)
 file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
+file(GLOB surface_recon_src src/surface_recon/*)
+file(GLOB loop_detector_src src/loop-closure/*)
 
-# boost (for logging)
-find_package(Boost COMPONENTS log log_setup thread date_time filesystem system REQUIRED)
-include_directories( ${Boost_INCLUDE_DIRS} )
 
 # Loop-detector
-file(GLOB loop_detector_src src/loop-closure/*)
-add_executable(loop_detection
-        ${loop_detector_src}
-        ${common_src}
-        ${dow2_ext_src}
-        ${logging_src}
-        ${config_src}
-        ${orb2_src})
-target_link_libraries( loop_detection ${OpenCV_LIBS}
-        ${DBoW2_LIBS}
-        ${DLib_LIBS}
-        ${Boost_LIBRARIES}
-        )
+#add_executable(loop_detection
+#        ${loop_detector_src}
+#        ${common_src}
+#        ${dow2_ext_src}
+#        ${logging_src}
+#        ${config_src}
+#        ${orb2_src})
+#target_link_libraries( loop_detection ${OpenCV_LIBS}
+#        ${DBoW2_LIBS}
+#        ${DLib_LIBS}
+#        ${Boost_LIBRARIES}
+#        )
 
 # Vocabulary Converter
 add_executable(voc_converter src/tools/VocabularyConverter.cpp ${logging_src} ${dow2_ext_src})
@@ -72,7 +77,6 @@ target_link_libraries(
         ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}
-        ${Boost_LIBRARIES}
         )
 
 MESSAGE("logging_src: ${logging_src}")
@@ -83,8 +87,19 @@ add_executable(view_test src/tests/view_test.cpp
         ${visualization_src})
 target_link_libraries(view_test ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
-        ${Boost_LIBRARIES}
         ${DBoW2_LIBS})
+
+add_executable(surface_recon src/tests/surface_recon.cpp
+        ${common_src}
+        ${logging_src}
+        ${config_src}
+        ${visualization_src}
+        ${surface_recon_src}
+        )
+target_link_libraries(surface_recon ${OpenCV_LIBS}
+        ${Pangolin_LIBRARIES}
+        ${DBoW2_LIBS}
+        ${PCL_LIBRARIES})
 
 # =================== playground ===================
 add_subdirectory(playground)

@@ -18,7 +18,7 @@
  */
 
 #include "Config.h"
-#include "LoopDetectionConfig.h"
+#include "NodeConfig.h"
 #include "Map.h"
 #include "LoopDetector.h"
 #include "LoopConnection.h"

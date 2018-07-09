@@ -1,0 +1,10 @@
+%YAML:1.0
+---
+img_dir: ""
+use_trajectory: 0
+trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectoryRGBD.yaml"
+pointcloud: "/home/ernest/SLAM/datasets/cloud.pcd"
+use_fast_triangulation_recon: 1 
+use_poisson_recon: 0
+Vocabulary: ""
+loop_detection_threshold: 

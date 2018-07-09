@@ -28,23 +28,42 @@
 #include <logging_util.h>
 
 namespace MapGen {
-    class LoopDetectionConfig {
+    // =========================================================================
+    //  Some helper functions
+    // =========================================================================
+    bool is_dir_exist(const std::string& dir_name);
+    bool is_file_exist(const std::string& file_name);
+
+
+    // =========================================================================
+    //  NodeConfig Class
+    // =========================================================================
+    class NodeConfig {
     public:
-        explicit LoopDetectionConfig(std::string filename);
+        explicit NodeConfig(std::string filename);
 
         std::string get_img_dir();
 
         std::string get_trajectory();
-
+        std::string get_pointcloud();
         std::string get_vocabulary();
+        bool use_trajectory();
 
         double get_threshold();
+
+        bool use_fast_triangulation_recon();
+        bool use_poisson_recon();
 
     private:
         std::string img_dir_;
         std::string trajectory_;
         std::string vocabulary_;
+        std::string pc_filename_;
         double threshold_;
+
+        bool use_trajectory_;
+        bool use_fast_triangulation_recon_;
+        bool use_poisson_recon_;
     };
 }
 

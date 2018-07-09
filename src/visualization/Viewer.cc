@@ -110,7 +110,7 @@ void Viewer::Run() {
 
     SetFinish();
 
-	BOOST_LOG_TRIVIAL(info) << "UI thread finished, exiting...";
+	LOG_INFO << "UI thread finished, exiting...";
 }
 
 void Viewer::RequestFinish() {
