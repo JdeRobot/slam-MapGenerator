@@ -16,7 +16,7 @@ namespace MapGen {
 
     class LoopConnection {
     public:
-        LoopConnection(const std::pair<KeyFrame *, KeyFrame *>& loop_closing_pair, const cv::Mat& K);
+        LoopConnection(KeyFrame * frame_a, KeyFrame * frame_b, const cv::Mat& K, double scaling_factor);
 
         // get the relative pose between two frames
         cv::Mat get_essential();

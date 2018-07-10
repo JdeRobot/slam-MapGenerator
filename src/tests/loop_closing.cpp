@@ -24,6 +24,7 @@
 #include "LoopConnection.h"
 #include "logging_util.h"
 #include "Camera.h"
+#include "Optimizer.h"
 
 using namespace MapGen;
 
@@ -62,11 +63,13 @@ int main (int argc, const char * argv[]){
 
     // try to close the loop
     // create a BFMatcher
-    cv::BFMatcher matcher;
-    vector<LoopConnection *> loop_connections;
-    for (auto p : closing_pairs){
-        loop_connections.push_back(new LoopConnection(p, camera.get_intrinsic_matrix()));
-    }
+//    cv::BFMatcher matcher;
+//    vector<LoopConnection *> loop_connections;
+//    for (auto p : closing_pairs){
+//        loop_connections.push_back(new LoopConnection(p, camera.get_intrinsic_matrix()));
+//    }
+
+    Optimizer opt(map.GetAllKeyFrames(),camera.get_intrinsic_matrix());
 
 
     // TODO: delete all elements in loop_connections (memory leak)
