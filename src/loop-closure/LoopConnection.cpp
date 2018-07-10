@@ -38,7 +38,9 @@ namespace MapGen{
 
         // recover pose from essential matrix
         int num_inliners = cv::recoverPose(E,matched_points_1,matched_points_2,r_,t_,K.at<double>(0,0),pp);
-
+        LOG_INFO << "num_inliners: " << num_inliners << std::endl;
+        LOG_INFO << "r: " << r_ << std::endl;
+        LOG_INFO << "t: " << t_ << std::endl;
     }
 
     cv::Mat LoopConnection::get_essential() {

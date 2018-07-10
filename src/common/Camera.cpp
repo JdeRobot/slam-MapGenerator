@@ -19,10 +19,6 @@ namespace MapGen{
     	K.at<double>(1,2) = params_.cy;
     	K.at<double>(2,2) = 1;
 
-    	// TODO: for verification only
-    	LOG_DEBUG << "K: " << std::endl;
-    	LOG_DEBUG << K << std::endl;
-
     	return K;
     }
 

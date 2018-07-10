@@ -10,6 +10,7 @@
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 #include <exception>
+#include "logging_util.h"
 
 namespace MapGen {
 
