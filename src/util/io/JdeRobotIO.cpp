@@ -40,7 +40,7 @@ namespace MapGen{
             Eigen::Vector3d t = pKF->GetTranslation();
 
             output += "  - id: " + std::to_string(pKF->GetId()) + "\n";
-            output += "    filename: " + pKF->GetFilename() + "\n";
+            output += "    filename: \"" + pKF->GetFilename() + "\"\n";
             output += "    pose:\n";
             output += "      - " + std::to_string(q.w()) + "\n";
             output += "      - " + std::to_string(q.x()) + "\n";
@@ -51,7 +51,10 @@ namespace MapGen{
             output += "      - " + std::to_string(t(2)) + "\n";
         }
 
-        f << output << std::endl;
+        // Save map points
+        // output += "points:";
+
+        f << output;
         LOG_INFO << "Trajectory saved to file: " << filename << std::endl;
     }
 

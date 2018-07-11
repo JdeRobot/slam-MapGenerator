@@ -119,19 +119,32 @@ int main (int argc, const char * argv[]){
     bool result = MapGen::SolveOptimizationProblem(&problem);
     LOG_INFO << "Solving result: " << result << std::endl;
 
-    // MapGen::OutputPoses("poses_optimized.txt", poses);
-    MapGen::JdeRobotIO::saveTrajectory(map,camera,"poses_optimized.yaml");
-    LOG_INFO << "optimized poses saved to poses_optimized.txt. " << std::endl;
-
 //    Optimizer opt(map.GetAllKeyFrames(),camera);
 //    for (auto p : closing_pairs){
 //        opt.add_loop_closing(p.first, p.second);
 //    }
 
     // update the Keyframe pose (from the optimizer)
-//    for (auto frame : kfs){
-//        auto pose_corrected = poses[frame->GetId()];
-//    }
+    for (auto frame : kfs){
+        Eigen::Vector3d p = poses.at(frame->GetId()).p;
+        Eigen::Matrix3d r = Eigen::Matrix3d(poses.at(frame->GetId()).q);
+
+        // the frame pose
+        Eigen::Matrix4d t = Eigen::Matrix4d::Identity();
+        for (int i = 0; i < 3; i++){
+            t(i,3) = p(i);
+        }
+        for (int i = 0; i < 3; i++){
+            for (int j = 0; j < 3; j++){
+                t(i,j) = r(i,j);
+            }
+        }
+        frame->set_pose(t);
+    }
+
+    // MapGen::OutputPoses("poses_optimized.txt", poses);
+    MapGen::JdeRobotIO::saveTrajectory(map,camera,"poses_optimized.yaml");
+    LOG_INFO << "optimized poses saved to poses_optimized.txt. " << std::endl;
 
     return 0;
 }
