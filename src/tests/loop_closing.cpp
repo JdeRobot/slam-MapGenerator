@@ -17,6 +17,7 @@
  *
  */
 
+#include <glog/logging.h>
 #include "Config.h"
 #include "NodeConfig.h"
 #include "Map.h"
@@ -24,7 +25,9 @@
 #include "LoopConnection.h"
 #include "logging_util.h"
 #include "Camera.h"
-#include "Optimizer.h"
+//#include "Optimizer.h"
+#include "pose_graph_3d.h"
+#include "types.h"
 
 using namespace MapGen;
 
@@ -69,10 +72,52 @@ int main (int argc, const char * argv[]){
 //        loop_connections.push_back(new LoopConnection(p, camera.get_intrinsic_matrix()));
 //    }
 
-    Optimizer opt(map.GetAllKeyFrames(),camera);
-    for (auto p : closing_pairs){
-        opt.add_loop_closing(p.first, p.second);
+    google::InitGoogleLogging(argv[0]);
+    MapGen::MapOfPoses poses;
+    MapGen::VectorOfConstraints constraints;
+    // add all vertex (keyframes)
+    for (auto kf : map.GetAllKeyFrames()){
+        poses.insert(std::pair<int,Pose3d>(kf->GetId(), Pose3d(kf->GetPose())));
     }
+
+    // build constrains
+    // sequential constrains
+    auto kfs = map.GetAllKeyFrames();
+    for (int i = 0; i < (kfs.size() - 1); i++){
+        auto kf_1 = kfs[i];
+        auto kf_2 = kfs[i+1];
+        Eigen::Matrix4d t = kf_1->GetPose().inverse() * kf_2->GetPose();
+        constraints.push_back(Constraint3d(kf_1->GetId(), kf_2->GetId(), t));
+    }
+    // loop closing constrains
+    for (auto p : closing_pairs){
+        auto kf_1 = p.first;
+        auto kf_2 = p.second;
+        Eigen::Matrix4d t = Eigen::Matrix4d::Identity();
+        constraints.push_back(Constraint3d(kf_1->GetId(), kf_2->GetId(), t));
+    }
+
+    LOG_INFO << "Number of poses: " << poses.size() << '\n';
+    LOG_INFO << "Number of constraints: " << constraints.size() << '\n';
+
+    // save the original pose
+    MapGen::OutputPoses("poses_original.txt", poses);
+    LOG_INFO << "original poses saved to poses_original.txt. " << std::endl;
+
+    // optimize the pose graph
+    ceres::Problem problem;
+    MapGen::BuildOptimizationProblem(constraints, &poses, &problem);
+
+    bool result = MapGen::SolveOptimizationProblem(&problem);
+    LOG_INFO << "Solving result: " << result << std::endl;
+
+    MapGen::OutputPoses("poses_optimized.txt", poses);
+    LOG_INFO << "optimized poses saved to poses_optimized.txt. " << std::endl;
+
+//    Optimizer opt(map.GetAllKeyFrames(),camera);
+//    for (auto p : closing_pairs){
+//        opt.add_loop_closing(p.first, p.second);
+//    }
 
 
     // TODO: delete all elements in loop_connections (memory leak)

@@ -31,6 +31,10 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+# Ceres Solver
+find_package(Ceres REQUIRED)
+include_directories(${CERES_INCLUDE_DIRS})
+
 # src
 include_directories(src/common
         src/loop-closure
@@ -67,7 +71,7 @@ add_executable(loop_closing src/tests/loop_closing.cpp
 target_link_libraries( loop_closing ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}
-        ${Boost_LIBRARIES}
+        ${CERES_LIBRARIES}
         )
 
 # Vocabulary Converter
