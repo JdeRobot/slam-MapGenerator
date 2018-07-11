@@ -31,168 +31,172 @@ using std::vector;
 namespace MapGen {
 
 
-KeyFrame::KeyFrame(int id, std::string filename, const vector<double> &pose):
-    id_(id), filename_(filename) {
-    assert(pose.size() == 7);
+    KeyFrame::KeyFrame(int id, std::string filename, const vector<double> &pose):
+            id_(id), filename_(filename) {
+        assert(pose.size() == 7);
 
-    // Get translation and rotation
-    Eigen::Quaterniond q(pose[0], pose[1], pose[2], pose[3]);
-    Eigen::Vector3d p(pose[4], pose[5], pose[6]);
+        // Get translation and rotation
+        Eigen::Quaterniond q(pose[0], pose[1], pose[2], pose[3]);
+        Eigen::Vector3d p(pose[4], pose[5], pose[6]);
 
-    pose_.setIdentity();
-    pose_.block<3, 3>(0, 0) = q.toRotationMatrix();
-    pose_.block<3, 1>(0, 3) = p;
-}
-
-int KeyFrame::GetId() {
-    return id_;
-}
-
-const std::string KeyFrame::GetFilename() {
-    return filename_;
-}
-
-Eigen::Matrix4d KeyFrame::GetPose() {
-    unique_lock<mutex> lock(mutexPose_);
-    return pose_;
-}
-
-Eigen::Matrix3d KeyFrame::GetRotation() {
-  unique_lock<mutex> lock(mutexPose_);
-  return pose_.block<3, 3>(0, 0);
-}
-
-Eigen::Vector3d KeyFrame::GetTranslation() {
-  unique_lock<mutex> lock(mutexPose_);
-  return pose_.block<3, 1>(0, 3);
-}
-
-void KeyFrame::AddConnection(KeyFrame *kf, const int weight) {
-    unique_lock<mutex> lock(mutexConnections_);
-    connectedKeyFrames_[kf] = weight;
-}
-
-vector<KeyFrame*> KeyFrame::GetConnectedByWeight(const int &w) {
-    vector<KeyFrame*> connections;
-
-    unique_lock<mutex> lock(mutexConnections_);
-
-    // Save KeyFrames greater than weight
-    for (auto it=connectedKeyFrames_.begin(); it!=connectedKeyFrames_.end(); it++) {
-        if (it->second >= w)
-            connections.push_back(it->first);
+        pose_.setIdentity();
+        pose_.block<3, 3>(0, 0) = q.toRotationMatrix();
+        pose_.block<3, 1>(0, 3) = p;
     }
 
-    return connections;
-}
-
-void KeyFrame::AddObservation(MapPoint* mp, const std::vector<double> &pixel) {
-    assert(pixel.size() == 2);
-    Eigen::Vector2d kp(pixel[0], pixel[1]);
-
-    unique_lock<mutex> lock(mutexFeatures_);
-    mapPoints_[mp] = kp;
-    mp->AddObservation(this);
-}
-
-void KeyFrame::EraseObservation(MapPoint* mp) {
-    unique_lock<mutex> lock(mutexFeatures_);
-    if(mapPoints_.count(mp)) {
-        mapPoints_.erase(mp);
-    }
-}
-
-void KeyFrame::UpdateConnections() {
-    std::map<KeyFrame*, int> KFcounter;
-
-    vector<MapPoint*> mapPoints;
-
-    {
-        unique_lock<mutex> lockMPs(mutexFeatures_);
-        for (auto it=mapPoints_.begin(); it!=mapPoints_.end(); it++)
-            mapPoints.push_back(it->first);
+    int KeyFrame::GetId() {
+        return id_;
     }
 
-    // For each map point in keyframe: check in which other keyframes they are seen and
-    // increase counter for those keyframes
-    for (vector<MapPoint*>::iterator vit=mapPoints.begin(), vend=mapPoints.end(); vit != vend; vit++) {
-        MapPoint* mp = *vit;
+    const std::string KeyFrame::GetFilename() {
+        return filename_;
+    }
 
-        if (!mp)
-            continue;
+    Eigen::Matrix4d KeyFrame::GetPose() {
+        unique_lock<mutex> lock(mutexPose_);
+        return pose_;
+    }
 
-        std::set<KeyFrame*> observations = mp->GetObservations();
-        for (auto mit=observations.begin(), mend=observations.end(); mit != mend; mit++) {
-            KeyFrame* kf = *mit;
+    Eigen::Matrix3d KeyFrame::GetRotation() {
+        unique_lock<mutex> lock(mutexPose_);
+        return pose_.block<3, 3>(0, 0);
+    }
 
-            if (kf->id_ == id_)
+    Eigen::Vector3d KeyFrame::GetTranslation() {
+        unique_lock<mutex> lock(mutexPose_);
+        return pose_.block<3, 1>(0, 3);
+    }
+
+    void KeyFrame::set_pose(const Eigen::Matrix4d &pose) {
+        pose_ = pose;
+    }
+
+    void KeyFrame::AddConnection(KeyFrame *kf, const int weight) {
+        unique_lock<mutex> lock(mutexConnections_);
+        connectedKeyFrames_[kf] = weight;
+    }
+
+    vector<KeyFrame*> KeyFrame::GetConnectedByWeight(const int &w) {
+        vector<KeyFrame*> connections;
+
+        unique_lock<mutex> lock(mutexConnections_);
+
+        // Save KeyFrames greater than weight
+        for (auto it=connectedKeyFrames_.begin(); it!=connectedKeyFrames_.end(); it++) {
+            if (it->second >= w)
+                connections.push_back(it->first);
+        }
+
+        return connections;
+    }
+
+    void KeyFrame::AddObservation(MapPoint* mp, const std::vector<double> &pixel) {
+        assert(pixel.size() == 2);
+        Eigen::Vector2d kp(pixel[0], pixel[1]);
+
+        unique_lock<mutex> lock(mutexFeatures_);
+        mapPoints_[mp] = kp;
+        mp->AddObservation(this);
+    }
+
+    void KeyFrame::EraseObservation(MapPoint* mp) {
+        unique_lock<mutex> lock(mutexFeatures_);
+        if(mapPoints_.count(mp)) {
+            mapPoints_.erase(mp);
+        }
+    }
+
+    void KeyFrame::UpdateConnections() {
+        std::map<KeyFrame*, int> KFcounter;
+
+        vector<MapPoint*> mapPoints;
+
+        {
+            unique_lock<mutex> lockMPs(mutexFeatures_);
+            for (auto it=mapPoints_.begin(); it!=mapPoints_.end(); it++)
+                mapPoints.push_back(it->first);
+        }
+
+        // For each map point in keyframe: check in which other keyframes they are seen and
+        // increase counter for those keyframes
+        for (vector<MapPoint*>::iterator vit=mapPoints.begin(), vend=mapPoints.end(); vit != vend; vit++) {
+            MapPoint* mp = *vit;
+
+            if (!mp)
                 continue;
 
-            KFcounter[kf]++;
+            std::set<KeyFrame*> observations = mp->GetObservations();
+            for (auto mit=observations.begin(), mend=observations.end(); mit != mend; mit++) {
+                KeyFrame* kf = *mit;
+
+                if (kf->id_ == id_)
+                    continue;
+
+                KFcounter[kf]++;
+            }
         }
+
+        // This should not happen
+        if (KFcounter.empty())
+            return;
+
+        // If the counter is greater than threshold add connection
+        // In case no keyframe counter is over threshold add the one with maximum counter
+        int nmax = 0;
+        KeyFrame* kf_max = nullptr;
+        int th = 15;
+
+        vector<std::pair<int,KeyFrame*> > vPairs;
+        vPairs.reserve(KFcounter.size());
+        for (auto mit=KFcounter.begin(), mend=KFcounter.end(); mit != mend; mit++) {
+            if (mit->second > nmax) {
+                nmax = mit->second;
+                kf_max = mit->first;
+            }
+            if (mit->second >= th) {
+                vPairs.push_back(std::make_pair(mit->second, mit->first));
+                (mit->first)->AddConnection(this, mit->second);
+            }
+        }
+
+        if (vPairs.empty()) {
+            vPairs.push_back(std::make_pair(nmax,kf_max));
+            kf_max->AddConnection(this, nmax);
+        }
+
+        // Add connections
+        for (size_t i = 0; i < vPairs.size(); i++)
+            AddConnection(vPairs[i].second, vPairs[i].first);
     }
 
-    // This should not happen
-    if (KFcounter.empty())
-        return;
-
-    // If the counter is greater than threshold add connection
-    // In case no keyframe counter is over threshold add the one with maximum counter
-    int nmax = 0;
-    KeyFrame* kf_max = nullptr;
-    int th = 15;
-
-    vector<std::pair<int,KeyFrame*> > vPairs;
-    vPairs.reserve(KFcounter.size());
-    for (auto mit=KFcounter.begin(), mend=KFcounter.end(); mit != mend; mit++) {
-        if (mit->second > nmax) {
-            nmax = mit->second;
-            kf_max = mit->first;
-        }
-        if (mit->second >= th) {
-            vPairs.push_back(std::make_pair(mit->second, mit->first));
-            (mit->first)->AddConnection(this, mit->second);
-        }
+    void KeyFrame::EraseConnection(KeyFrame* kf) {
+        unique_lock<mutex> lock(mutexConnections_);
+        if (connectedKeyFrames_.count(kf))
+            connectedKeyFrames_.erase(kf);
     }
 
-    if (vPairs.empty()) {
-        vPairs.push_back(std::make_pair(nmax,kf_max));
-        kf_max->AddConnection(this, nmax);
+    void KeyFrame::setBowVector(const DBoW2::BowVector &bow_vector) {
+        bow_vector_ = bow_vector;
     }
 
-    // Add connections
-    for (size_t i = 0; i < vPairs.size(); i++)
-        AddConnection(vPairs[i].second, vPairs[i].first);
-}
+    DBoW2::BowVector KeyFrame::getBowVector() {
+        return bow_vector_;
+    }
 
-void KeyFrame::EraseConnection(KeyFrame* kf) {
-    unique_lock<mutex> lock(mutexConnections_);
-    if (connectedKeyFrames_.count(kf))
-        connectedKeyFrames_.erase(kf);
-}
+    void KeyFrame::setKeypoints(const std::vector<cv::KeyPoint> &keypoints) {
+        keypoints_ = keypoints;
+    }
 
-void KeyFrame::setBowVector(const DBoW2::BowVector &bow_vector) {
-    bow_vector_ = bow_vector;
-}
+    std::vector<cv::KeyPoint> KeyFrame::getKeypoints() {
+        return keypoints_;
+    }
 
-DBoW2::BowVector KeyFrame::getBowVector() {
-    return bow_vector_;
-}
+    void KeyFrame::setDesciptor(const cv::Mat &descriptor) {
+        descriptor_ = descriptor;
+    }
 
-void KeyFrame::setKeypoints(const std::vector<cv::KeyPoint> &keypoints) {
-    keypoints_ = keypoints;
-}
-
-std::vector<cv::KeyPoint> KeyFrame::getKeypoints() {
-    return keypoints_;
-}
-
-void KeyFrame::setDesciptor(const cv::Mat &descriptor) {
-    descriptor_ = descriptor;
-}
-
-cv::Mat KeyFrame::getDescriptor() {
-    return descriptor_;
-}
+    cv::Mat KeyFrame::getDescriptor() {
+        return descriptor_;
+    }
 
 }  // namespace SLAM_VIEWER

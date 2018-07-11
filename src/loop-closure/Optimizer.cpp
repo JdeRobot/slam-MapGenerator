@@ -24,8 +24,45 @@ namespace MapGen{
 //        // TODO: add loop-closing observation to the optimization graph
 //    }
 
-    Optimizer::Optimizer(Map &map, std::vector<LoopConnection> &loop_connections) {
+    Optimizer::Optimizer(std::vector<KeyFrame *> frames, const Camera& cam) :seq_connections_(), loop_connections_(), cam_(cam) {
+        if (frames.size() < 2){
+            LOG_ERROR << "Unable to initialize the optimizer. At least 2 keyframes are required.";
+        }
+
+        // create sequential connections
+        seq_connections_.reserve(frames.size() - 1);
+        for (int i = 0; i < (frames.size() - 1); i++){
+            seq_connections_.push_back(Connection(frames[i], frames[i+1],cam));
+        }
+
+//        // calculate the scaling factor
+//        // scaling_factor is set to 1 so that we can determine the scaling factor later
+//        std::vector<double> ts;
+//        LOG_INFO << "ts: " << std::endl;
+//        for (int i = 0; i < 10; i++){
+//            // use OpenCV to get the frame-to-frame position
+//            LoopConnection tmp_connection(frames[i], frames[i+1], K, 1);
+//            double tmp_1 = tmp_connection.get_translation().at<double>(0);
+//
+//            auto P1 = frames[i]->GetPose();
+//            auto P2 = frames[i+1]->GetPose();
+//            auto T = P1.inverse() * P2;
+//
+//            double tmp_2 = T(0,3);
+//
+//
+//            // use input data to get the scaling factor
+//            ts.push_back(tmp_1/tmp_2);
+//
+//            LOG_INFO << tmp_1/tmp_2 << std::endl;
+//        }
 
     }
+
+    void Optimizer::add_loop_closing(KeyFrame *frame_a, KeyFrame *frame_b) {
+        loop_connections_.push_back(LoopConnection(frame_a, frame_b, cam_));
+    }
+
+
 
 }

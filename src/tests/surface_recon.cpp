@@ -21,12 +21,13 @@ int main(int argc, const char *argv[]) {
 
     NodeConfig config(argv[1]);
     MapGen::Map map;
+    MapGen::Camera camera;
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 
     if (config.use_trajectory()) {
         // read in the trajectory file
-        if (!MapGen::Config::ReadParameters(config.get_trajectory(), map)) {
+        if (!MapGen::Config::ReadParameters(config.get_trajectory(), map, camera)) {
             LOG_ERROR << "fail to read the trajectory file at: " << config.get_trajectory() << std::endl;
             return 1;
         }

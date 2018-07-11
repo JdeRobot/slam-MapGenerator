@@ -6,21 +6,40 @@
 #define SLAM_MAPGEN_CAMERA_H
 
 #include <opencv2/core.hpp>
-#include "Config.h"
+#include "logging_util.h"
+
+
+// The intrinsic matrix K is in the following gorm
+// fx  0   cx 
+// 0   fy  cy 
+// 0   0   1 
 
 namespace MapGen {
 
+    struct CameraParameters {
+        double fx;
+        double fy;
+        double cx;
+        double cy;
+        double k1;
+        double k2;
+        double p1;
+        double p2;
+        double k3;
+    };
+
+
     class Camera {
     public:
-        Camera(const CameraParameters& params);
+        Camera();
+        explicit Camera(const CameraParameters& params) ;
 
-        cv::Point2d get_priciple_points();
+        cv::Mat get_intrinsic_matrix() const;
+
+        CameraParameters get_camera_params() const;
 
 
     private:
-        cv::Mat intrinsic_mat_;
-        cv::Mat distortion_;
-
         CameraParameters params_;
     };
 

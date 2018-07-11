@@ -12,6 +12,8 @@
 
 #include "Map.h"
 #include "LoopConnection.h"
+#include "Connection.h"
+#include "logging_util.h"
 
 //using namespace g2o;
 
@@ -19,9 +21,25 @@ namespace MapGen {
 
     class Optimizer {
     public:
-        Optimizer(Map& map, std::vector<LoopConnection>& loop_connections);
-    };
+        // TODO: maybe initialize the scaling_factor with several observation if you need
+        Optimizer(std::vector<KeyFrame *> frames, const Camera& cam);
 
+        // the nodes should be added sequentially
+        void add_loop_closing(KeyFrame * frame_a, KeyFrame * frame_b);
+
+        void run_optimizer();
+
+    private:
+        std::vector<Connection> seq_connections_;
+        std::vector<LoopConnection> loop_connections_;
+
+        Camera cam_;
+
+        // the scaling factor used to rescale the relative pose (Sim3) solved by OpenCV
+        // so that it could meet with the ground truth
+        // should be initialized with several observation before loop closing
+        // double scaling_factor_;
+    };
 }
 
 #endif //SLAM_MAPGEN_OPTIMIZER_H

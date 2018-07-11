@@ -36,20 +36,9 @@
 #include <opencv2/core/core.hpp>
 #include "logging_util.h"
 #include "Map.h"
+#include "Camera.h"
 
 namespace MapGen {
-
-struct CameraParameters {
-    double fx;
-    double fy;
-    double cx;
-    double cy;
-    double k1;
-    double k2;
-    double p1;
-    double p2;
-    double k3;
-};
 
 class Config {
  public:
@@ -60,7 +49,7 @@ class Config {
     }
 
     // Read parameters from file
-    static bool ReadParameters(std::string filename, Map &map);
+    static bool ReadParameters(std::string filename, Map &map, Camera& cam);
 
     // Get UI parameters
     static double KeyFrameSize() { return GetInstance().kKeyFrameSize_; }

@@ -27,7 +27,7 @@ namespace MapGen {
         // initialize variables
         orb_ = cv::ORB::create();
 
-        LOG_INFO << "Loading voc from " << pretrained_voc;
+        LOG_INFO << "Loading voc from " << pretrained_voc << std::endl;
         std::regex e ("(.*)(.txt)");
         if (std::regex_match(pretrained_voc,e)) {
             LOG_DEBUG << "txt file detected";
@@ -36,7 +36,7 @@ namespace MapGen {
         else{
             voc_.load(pretrained_voc);
         }
-        LOG_INFO << "Loaded voc from " << pretrained_voc;
+        LOG_INFO << "Loaded voc from " << pretrained_voc << std::endl;
 
         // compute all features
         computeAllFeatures(map, img_dir);
