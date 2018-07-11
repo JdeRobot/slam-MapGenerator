@@ -59,6 +59,11 @@ int main (int argc, const char * argv[]){
         LOG_INFO << "detected loop closing pair: " << p.first->GetFilename() << " & "
                                 << p.second->GetFilename() << std::endl;
     }
+    LOG_INFO << "======================================================" << std::endl;
+    for (auto p : closing_pairs){
+        LOG_INFO << "detected loop closing pair: " << p.first->GetId() << " & "
+                 << p.second->GetId() << std::endl;
+    }
 
     LOG_INFO << "Detection Completed" << std::endl;
 
@@ -92,6 +97,8 @@ int main (int argc, const char * argv[]){
     for (auto p : closing_pairs){
         auto kf_1 = p.first;
         auto kf_2 = p.second;
+        // TODO: assume the two frames are really close such that their transform is I
+        // TODO: need to have a PNP slover for solving the 3D pose
         Eigen::Matrix4d t = Eigen::Matrix4d::Identity();
         constraints.push_back(Constraint3d(kf_1->GetId(), kf_2->GetId(), t));
     }
