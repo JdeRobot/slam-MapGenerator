@@ -117,7 +117,7 @@ bool Config::ReadParameters(std::string filename, Map &map, Camera& cam) {
             if (kf != nullptr) {
                 kf->AddObservation(mp, pixel);
             } else {
-                LOG_DEBUG << "Observation ignored, KeyFrame "<< kf_id  << " not found";
+                LOG_DEBUG << "Observation ignored, KeyFrame "<< kf_id  << " not found" << std::endl;
             }
         }
     }

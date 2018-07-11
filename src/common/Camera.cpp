@@ -10,7 +10,11 @@ namespace MapGen{
         params_ = params;
     }
 
-    cv::Mat Camera::get_intrinsic_matrix(){
+	CameraParameters Camera::get_camera_params() const {
+		return params_;
+	}
+
+    cv::Mat Camera::get_intrinsic_matrix() const{
     	cv::Mat K = cv::Mat::zeros(3,3,CV_64F);
 
     	K.at<double>(0,0) = params_.fx;

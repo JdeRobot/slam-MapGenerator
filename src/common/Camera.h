@@ -34,7 +34,9 @@ namespace MapGen {
         Camera();
         explicit Camera(const CameraParameters& params) ;
 
-        cv::Mat get_intrinsic_matrix();
+        cv::Mat get_intrinsic_matrix() const;
+
+        CameraParameters get_camera_params() const;
 
 
     private:

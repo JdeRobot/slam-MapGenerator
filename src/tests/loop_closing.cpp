@@ -27,6 +27,7 @@
 #include "Camera.h"
 #include "pose_graph_3d.h"
 #include "types.h"
+#include "JdeRobotIO.h"
 
 using namespace MapGen;
 
@@ -107,7 +108,8 @@ int main (int argc, const char * argv[]){
     LOG_INFO << "Number of constraints: " << constraints.size() << '\n';
 
     // save the original pose
-    MapGen::OutputPoses("poses_original.txt", poses);
+    // MapGen::OutputPoses("poses_original.txt", poses);
+    MapGen::JdeRobotIO::saveTrajectory(map,camera,"poses_original.yaml");
     LOG_INFO << "original poses saved to poses_original.txt. " << std::endl;
 
     // optimize the pose graph
@@ -117,7 +119,8 @@ int main (int argc, const char * argv[]){
     bool result = MapGen::SolveOptimizationProblem(&problem);
     LOG_INFO << "Solving result: " << result << std::endl;
 
-    MapGen::OutputPoses("poses_optimized.txt", poses);
+    // MapGen::OutputPoses("poses_optimized.txt", poses);
+    MapGen::JdeRobotIO::saveTrajectory(map,camera,"poses_optimized.yaml");
     LOG_INFO << "optimized poses saved to poses_optimized.txt. " << std::endl;
 
 //    Optimizer opt(map.GetAllKeyFrames(),camera);
@@ -125,8 +128,10 @@ int main (int argc, const char * argv[]){
 //        opt.add_loop_closing(p.first, p.second);
 //    }
 
-
-    // TODO: delete all elements in loop_connections (memory leak)
+    // update the Keyframe pose (from the optimizer)
+//    for (auto frame : kfs){
+//        auto pose_corrected = poses[frame->GetId()];
+//    }
 
     return 0;
 }

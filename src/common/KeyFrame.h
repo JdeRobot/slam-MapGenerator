@@ -46,6 +46,8 @@ class KeyFrame {
     Eigen::Matrix4d GetPose();
     Eigen::Matrix3d GetRotation();
     Eigen::Vector3d GetTranslation();
+    void set_pose(const Eigen::Matrix4d& pose);
+
 
     // Covisibility graph functions
     void AddConnection(KeyFrame* kf, const int weight);

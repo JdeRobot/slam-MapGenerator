@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # config logging (auto-generation for different release build)
 MESSAGE("Generating logging_util.h for logging")
-configure_file("src/logging/logging_util.h.in" "${PROJECT_SOURCE_DIR}/src/logging/logging_util.h")
+configure_file("src/util/logging/logging_util.h.in" "${CMAKE_SOURCE_DIR}/src/util/logging/logging_util.h")
 
 # Eigen
 find_package(Eigen3 REQUIRED)
@@ -38,8 +38,9 @@ include_directories(${CERES_INCLUDE_DIRS})
 # src
 include_directories(src/common
         src/loop-closure
-        src/logging
-        src/config
+        src/util/logging
+        src/util/config
+        src/util/io
         src/tools
         src/visualization
         src/DBoW2-ext
@@ -52,13 +53,13 @@ include_directories(src/common
 # common
 file(GLOB common_src src/common/*(.h|.cpp))
 file(GLOB dow2_ext_src src/DBoW2-ext/*(.h|.cpp))
-file(GLOB logging_src src/logging/*.cpp)
-file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 file(GLOB surface_recon_src src/surface_recon/*)
 file(GLOB loop_detector_src src/loop-closure/*(.h|.cpp))
-
+file(GLOB logging_src src/util/logging/*.cpp)
+file(GLOB config_src src/util/config/*)
+file(GLOB io_src src/util/io/*)
 
 # Loop-detector
 add_executable(loop_closing src/tests/loop_closing.cpp
@@ -67,7 +68,9 @@ add_executable(loop_closing src/tests/loop_closing.cpp
         ${dow2_ext_src}
         ${logging_src}
         ${config_src}
-        ${orb2_src})
+        ${orb2_src}
+        ${io_src}
+        )
 target_link_libraries( loop_closing ${OpenCV_LIBS}
         ${DBoW2_LIBS}
         ${DLib_LIBS}
