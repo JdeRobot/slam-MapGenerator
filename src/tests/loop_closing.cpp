@@ -69,7 +69,10 @@ int main (int argc, const char * argv[]){
 //        loop_connections.push_back(new LoopConnection(p, camera.get_intrinsic_matrix()));
 //    }
 
-    Optimizer opt(map.GetAllKeyFrames(),camera.get_intrinsic_matrix());
+    Optimizer opt(map.GetAllKeyFrames(),camera);
+    for (auto p : closing_pairs){
+        opt.add_loop_closing(p.first, p.second);
+    }
 
 
     // TODO: delete all elements in loop_connections (memory leak)

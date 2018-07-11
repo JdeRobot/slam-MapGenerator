@@ -9,8 +9,12 @@
 namespace MapGen{
 
     // calculate the fundamental matrix, then get the essential matrix
-    LoopConnection::LoopConnection(KeyFrame * frame_a, KeyFrame * frame_b,
-                                   const cv::Mat& K, double scaling_factor) {
+    LoopConnection::LoopConnection(KeyFrame * frame_a, KeyFrame * frame_b, const Camera& cam){
+        frame_a_ = frame_a;
+        frame_b_ = frame_b;
+
+        T_ = Eigen::Matrix4d::Identity();
+
 //        std::vector<cv::DMatch> macthes;
 //
 //        cv::BFMatcher matcher;
@@ -47,19 +51,7 @@ namespace MapGen{
 //        LOG_INFO << "r: " << r_ << std::endl;
 //        LOG_INFO << "t: " << t_ << std::endl;
 
-        r_ = cv::Mat::eye(3,3,CV_64F);
-        t_ = cv::Mat::zeros(3,1,CV_64F);
-    }
-
-    cv::Mat LoopConnection::get_essential() {
-        throw std::runtime_error("Not implemented yet");
-    }
-
-    cv::Mat LoopConnection::get_translation() {
-        return t_;
-    }
-
-    cv::Mat LoopConnection::get_rotation(){
-        return r_;
+//        r_ = cv::Mat::eye(3,3,CV_64F);
+//        t_ = cv::Mat::zeros(3,1,CV_64F);
     }
 }
