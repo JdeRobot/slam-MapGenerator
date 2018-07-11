@@ -25,7 +25,6 @@
 #include "LoopConnection.h"
 #include "logging_util.h"
 #include "Camera.h"
-//#include "Optimizer.h"
 #include "pose_graph_3d.h"
 #include "types.h"
 

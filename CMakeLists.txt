@@ -57,7 +57,7 @@ file(GLOB config_src src/config/*(.h|.cpp))
 file(GLOB visualization_src src/visualization/*(.h|.cpp))
 file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 file(GLOB surface_recon_src src/surface_recon/*)
-file(GLOB loop_detector_src src/loop-closure/*)
+file(GLOB loop_detector_src src/loop-closure/*(.h|.cpp))
 
 
 # Loop-detector
