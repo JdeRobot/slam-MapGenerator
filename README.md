@@ -1,28 +1,28 @@
 # slam-MapGenerator
 ## Project Description
 - This project aims at creating realistic 3D map from online SLAM algorithm.
-- This documentation is more developer amd user oriented.
-- You may refer to the [project wiki](https://jderobot.org/Club-jianxiong) for more progress-oriented content. (More Images and Videos there)
+- This documentation is more developer and user oriented.
+- You may refer to the [project wiki](https://jderobot.org/Club-jianxiong) for more progress-oriented content. (More images and videos there)
 <!-- more description with images here -->
 
 ## Overview 
 This project splits into 3 major parts:
 - Loop Closing
-- Global Bandle Ajustment (BA)
+- Global Bundle Adjustment (BA)
 - Reconstructing 3D Map 
 
-Each part coresponding to separate execuable files for now. I will put them into one execute files with nice config in the final phase of GSOC.
+Each part corresponding to separate executable files for now. I will put them into one execute files with nice configure in the final phase of GSOC.
 
 ## Current Progress
 The loop closing has been implemented and is working fine now. 
-Reconstructing 3D Map is under developement. I have got a very naive prototype and is working on improving it.
+Reconstructing 3D Map is under development. I have got a very naive prototype and is working on improving it.
 
 ## Dataset and Result
-The detailed README about datasets is in the subfolder datasets
-All dataset and result will be uploaded to google drive soon. (in one or two days)
+The detailed README about datasets is in the subfolder datasets. <br/>
+All datasets and some results are available at [Google Drive](https://drive.google.com/drive/folders/1Ta6QgiQ5ASHj42pyGt9OijQ7t_oUynFb). If the link doesn't work, you may type it manually: https://drive.google.com/drive/folders/1Ta6QgiQ5ASHj42pyGt9OijQ7t_oUynFb
 
 ### TUM Dataset
-If you are using the monocular dataset from TUM, which is fisheye camera, you need to first get undistorted images. You may do this by using the code in the dataset webpage.
+If you are using the monocular dataset from TUM, which is fish-eye camera, you need to first get undistorted images. You may do this by using the code in the dataset webpage.
 
 ## Detail Usage
 This section talks about the detail usage of the current working code (under master branch).
@@ -65,10 +65,10 @@ You may refer to visualize it by using [slam-viewer](https://github.com/JdeRobot
 YOUR_PATH_TO_SLAM_VIEWER/Viewer ~/SLAM/slam-MapGenerator/build/poses_optimized.yaml
 ```
 
-##### Config File: 
-The second parameters of the above command is the config file, it's in the following format:
+##### Configure File: 
+The second parameters of the above command is the configure file, it's in the following format:
 
-| Parameter Name           | Explaination                                                                               |
+| Parameter Name           | Explanation                                                                               |
 |--------------------------|--------------------------------------------------------------------------------------------|
 | img_dir                  | The image directory (undistorted images)                                                   |
 | trajectory               | The input trajectory file                                                                  |
@@ -78,10 +78,28 @@ The second parameters of the above command is the config file, it's in the follo
 
 
 ### Surface Reconstruction
-TODO: write usage and documentation about it.
+```shell
+./surface_recon ../config/surface_recon_config.yaml
+```
+This will save the reconstructed surface to mesh.vtk in the current working directory. 
+
+##### Configure File: 
+The second parameters of the above command is the configure file, it's in the following format:
+
+| Parameter Name               | Explanation                                                                               |
+|------------------------------|--------------------------------------------------------------------------------------------|
+| use_trajectory               | Set 1 to use the trajectory file, otherwise set 0 to use PCD pointcloud                    |
+| trajectory                   | The input trajectory file                                                                  |
+| pointcloud                   | The input pointcloud file                                                                  |
+| use_fast_triangulation_recon | Set 1 to use the method of fast triangulation (the native but useful one)                  |
+| use_poisson_recon            | Set 1 to use the method of Poisson R
+econstruction                                          |
 
 ### Testing environment
 All programs are tested under Ubuntu16.04. 
+
+### Contact
+We are using Github Issues to manage bugs and provide answers to questions. Feel free to file bug report / ask questions.
 
 <!-- Add wiki link -->
 <!--
