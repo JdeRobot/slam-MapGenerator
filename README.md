@@ -18,6 +18,7 @@ The loop closing has been implemented and is working fine now.
 Reconstructing 3D Map is under developement. I have got a very naive prototype and is working on improving it.
 
 ## Dataset and Result
+The detailed README about datasets is in the subfolder datasets
 All dataset and result will be uploaded to google drive soon. (in one or two days)
 
 ### TUM Dataset
