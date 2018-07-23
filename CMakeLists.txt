@@ -61,21 +61,21 @@ file(GLOB logging_src src/util/logging/*.cpp)
 file(GLOB config_src src/util/config/*)
 file(GLOB io_src src/util/io/*)
 
-# Loop-detector
-add_executable(loop_closing src/tests/loop_closing.cpp
-        ${loop_detector_src}
-        ${common_src}
-        ${dow2_ext_src}
-        ${logging_src}
-        ${config_src}
-        ${orb2_src}
-        ${io_src}
-        )
-target_link_libraries( loop_closing ${OpenCV_LIBS}
-        ${DBoW2_LIBS}
-        ${DLib_LIBS}
-        ${CERES_LIBRARIES}
-        )
+## Loop-detector
+#add_executable(loop_closing src/tests/loop_closing.cpp
+#        ${loop_detector_src}
+#        ${common_src}
+#        ${dow2_ext_src}
+#        ${logging_src}
+#        ${config_src}
+#        ${orb2_src}
+#        ${io_src}
+#        )
+#target_link_libraries( loop_closing ${OpenCV_LIBS}
+#        ${DBoW2_LIBS}
+#        ${DLib_LIBS}
+#        ${CERES_LIBRARIES}
+#        )
 
 # Vocabulary Converter
 add_executable(voc_converter src/tools/VocabularyConverter.cpp ${logging_src} ${dow2_ext_src})
@@ -88,22 +88,35 @@ target_link_libraries(
 
 MESSAGE("logging_src: ${logging_src}")
 
-add_executable(view_test src/tests/view_test.cpp
-        ${common_src}
-        ${logging_src}
-        ${visualization_src})
-target_link_libraries(view_test ${OpenCV_LIBS}
-        ${Pangolin_LIBRARIES}
-        ${DBoW2_LIBS})
+#add_executable(view_test src/tests/view_test.cpp
+#        ${common_src}
+#        ${logging_src}
+#        ${visualization_src})
+#target_link_libraries(view_test ${OpenCV_LIBS}
+#        ${Pangolin_LIBRARIES}
+#        ${DBoW2_LIBS})
+#
+#add_executable(surface_recon src/tests/surface_recon.cpp
+#        ${common_src}
+#        ${logging_src}
+#        ${config_src}
+#        ${visualization_src}
+#        ${surface_recon_src}
+#        )
+#target_link_libraries(surface_recon ${OpenCV_LIBS}
+#        ${Pangolin_LIBRARIES}
+#        ${DBoW2_LIBS}
+#        ${PCL_LIBRARIES})
 
-add_executable(surface_recon src/tests/surface_recon.cpp
+add_executable(map_generator src/map_generator.cpp
         ${common_src}
         ${logging_src}
         ${config_src}
         ${visualization_src}
         ${surface_recon_src}
         )
-target_link_libraries(surface_recon ${OpenCV_LIBS}
+target_link_libraries(map_generator
+        ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
         ${DBoW2_LIBS}
         ${PCL_LIBRARIES})

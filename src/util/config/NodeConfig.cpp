@@ -37,8 +37,114 @@ namespace MapGen {
         return true;
     }
 
-    NodeConfig::NodeConfig(std::string filename) {
+
+
+    ParamNamespace::ParamNamespace(const std::string& name_space) : name_space_(name_space),
+                                                                   string_params_(),
+                                                                   double_params_(),
+                                                                   string_params_names_(),
+                                                                   double_params_names_() {
+
+    }
+
+    ParamNamespace::ParamNamespace() {}
+
+    void ParamNamespace::add_param(const std::string &name, const std::string &type) {
+        if (type == "string")           string_params_names_.push_back(name);
+        else if (type == "double")      double_params_names_.push_back(name);
+        else{
+            throw std::runtime_error("Parameter type not supported, not implemented yet!");
+        }
+    }
+
+    void ParamNamespace::set_string_param(const std::string &name, const std::string &value) {
+        string_params_[name] = value;
+    }
+
+    void ParamNamespace::set_double_param(const std::string &name, double value) {
+        double_params_[name] = value;
+    }
+
+    std::string ParamNamespace::get_string_param(const std::string& name) {
+        return string_params_[name];
+    }
+
+    double ParamNamespace::get_double_param(const std::string &name) {
+        return double_params_[name];
+    }
+
+    void ParamNamespace::dump_to_fs(cv::FileStorage &fs) {
+        if ((string_params_names_.size() + double_params_names_.size()) == 0){
+            std::string comment = name_space_ + " has no local parameters.";
+            fs.writeComment(comment);
+            return;
+        }
+
+        fs << name_space_.c_str();
+
+        fs << "{";
+
+        for (const std::string& name : string_params_names_){
+            fs << name.c_str() << string_params_[name].c_str();
+        }
+        for (const std::string& name : double_params_names_){
+            fs << name.c_str() << double_params_[name];
+        }
+
+        fs << "}";
+    }
+
+    void ParamNamespace::read_from_fs(cv::FileNode &node) {
+        for (const std::string& name : string_params_names_){
+            node[name] >> string_params_[name];
+        }
+
+        for (const std::string& name : double_params_names_){
+            node[name] >> double_params_[name];
+        }
+    }
+
+
+    NodeConfig::NodeConfig() : namespace_map() {}
+
+    void NodeConfig::set_string_param(const std::string &name_space, const std::string &param_name, const std::string& value) {
+        namespace_map[name_space].set_string_param(param_name, value);
+    }
+
+    void NodeConfig::set_double_param(const std::string &name_space, const std::string &param_name,
+                                      double value) {
+        namespace_map[name_space].set_double_param(param_name,value);
+    }
+
+
+    std::string NodeConfig::get_string_param(const std::string &name_space, const std::string &name) {
+        return namespace_map[name_space].get_string_param(name);
+    }
+
+    double NodeConfig::get_double_param(const std::string &name_space, const std::string &name) {
+        return namespace_map[name_space].get_double_param(name);
+    }
+
+    void NodeConfig::add_namespace(const std::string &name_space) {
+        namespace_map[name_space] = ParamNamespace(name_space);
+    }
+
+    void NodeConfig::add_param(const std::string &name_space, const std::string &name, const std::string &type) {
+        namespace_map[name_space].add_param(name, type);
+    }
+
+    void NodeConfig::dump(const std::string &filename) {
+        cv::FileStorage fs(filename.c_str(), cv::FileStorage::WRITE);
+        for (auto it = namespace_map.begin(); it != namespace_map.end(); it ++){
+            it->second.dump_to_fs(fs);
+        }
+        fs.release();
+    }
+
+
+    NodeConfig::NodeConfig(std::string filename) : namespace_map() {
         cv::FileStorage fs(filename, cv::FileStorage::READ);
+
         if (!fs.isOpened()){
             LOG_ERROR << "Fail to read the config file: " << filename << std::endl;
             throw std::runtime_error("Fail to read the config file: " + filename);
