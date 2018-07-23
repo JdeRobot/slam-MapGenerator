@@ -11,12 +11,11 @@
 
 using namespace MapGen;
 
+// ==============================================================
+// Helper functions
+// ==============================================================
 
-void print_example_config(){
-    LOG_INFO << "Generating example config to example.yaml" << std::endl;
-
-    NodeConfig config;
-
+void init_config(NodeConfig& config){
     config.add_namespace("Common");
     config.add_namespace("LoopClosure");
     config.add_namespace("GlobalBA");
@@ -27,6 +26,18 @@ void print_example_config(){
     config.add_param("Common", "EnableLoopClosure", "double");
     config.add_param("LoopClosure", "Vocabulary", "string");
     config.add_param("LoopClosure", "loop_detection_threshold", "double");
+}
+
+// ==============================================================
+// Features
+// ==============================================================
+
+void print_example_config(){
+    LOG_INFO << "Generating example config to example.yaml" << std::endl;
+
+    NodeConfig config;
+
+    init_config(config);
     // config.add_param("Common", "img_dir", "string");
 
     // set default params
@@ -41,18 +52,38 @@ void print_example_config(){
     LOG_INFO << "Example Config generated and saved to example.yaml" << std::endl;
 }
 
+
+void loop_closing(){
+
+}
+
+
+
 int main(int argc, const char * argv[]){
     // deal with running parameters
     for (int i = 1; i < argc; i++){
         if (strcmp(argv[i], "--print-config") == 0){
             print_example_config();
+            return 0;
+        }
+        else{
+            // raise error if it is not the last argument
+            if (i != argc - 1) {
+                LOG_ERROR << "Unrecognized argument: " << argv[i] << std::endl;
+                return 1;
+            }
         }
     }
 
-    if (argc == 3){
+    // The main program takes 1 parameter1 only
+    if (argc != 2){
         LOG_ERROR << "Invalid Usage." << std::endl;
     }
 
+
+    NodeConfig config;
+    init_config(config);
+    config.read_from_file(argv[1]);
 
 
 //    NodeConfig config;

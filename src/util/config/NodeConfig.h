@@ -61,6 +61,10 @@ namespace MapGen {
         void dump_to_fs(cv::FileStorage& fs);
         void read_from_fs(cv::FileNode& node);
 
+        void print_all_params();
+
+        std::string get_ns_name();
+
     private:
         std::string name_space_;
 
@@ -90,7 +94,7 @@ namespace MapGen {
         double get_double_param(const std::string& name_space, const std::string& name);
 
         void dump(const std::string& filename );
-
+        void read_from_file(const std::string& filename);
 
         std::string get_img_dir();
 
