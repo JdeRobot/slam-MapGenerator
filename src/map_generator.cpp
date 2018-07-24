@@ -6,8 +6,11 @@
 
 #include <iostream>
 #include <opencv2/core/persistence.hpp>
+#include <ceres/ceres.h>
+#include <ceres/rotation.h>
 #include "NodeConfig.h"
 #include "logging_util.h"
+#include "bundleajustment.h"
 
 using namespace MapGen;
 
@@ -53,7 +56,51 @@ void print_example_config(){
 }
 
 
-void loop_closing(){
+
+// TODO: need change the IO
+int bundle_ajustment(int argc, const char * argv[]){
+    google::InitGoogleLogging(argv[0]);
+    if (argc != 2) {
+        std::cerr << "usage: simple_bundle_adjuster <bal_problem>\n";
+        return 1;
+    }
+
+    BALProblem bal_problem;
+    if (!bal_problem.LoadFile(argv[1])) {
+        std::cerr << "ERROR: unable to open file " << argv[1] << "\n";
+        return 1;
+    }
+
+    const double* observations = bal_problem.observations();
+
+    // Create residuals for each observation in the bundle adjustment problem. The
+    // parameters for cameras and points are added automatically.
+    ceres::Problem problem;
+    for (int i = 0; i < bal_problem.num_observations(); ++i) {
+        // Each Residual block takes a point and a camera as input and outputs a 2
+        // dimensional residual. Internally, the cost function stores the observed
+        // image location and compares the reprojection against the observation.
+
+        ceres::CostFunction* cost_function =
+                SnavelyReprojectionError::Create(observations[2 * i + 0],
+                                                 observations[2 * i + 1]);
+        problem.AddResidualBlock(cost_function,
+                                 NULL /* squared loss */,
+                                 bal_problem.mutable_camera_for_observation(i),
+                                 bal_problem.mutable_point_for_observation(i));
+    }
+
+    // Make Ceres automatically detect the bundle structure. Note that the
+    // standard solver, SPARSE_NORMAL_CHOLESKY, also works fine but it is slower
+    // for standard bundle adjustment problems.
+    ceres::Solver::Options options;
+    options.linear_solver_type = ceres::DENSE_SCHUR;
+    options.minimizer_progress_to_stdout = true;
+
+    ceres::Solver::Summary summary;
+    ceres::Solve(options, &problem, &summary);
+    std::cout << summary.FullReport() << "\n";
+    return 0;
 
 }
 

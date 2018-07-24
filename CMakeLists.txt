@@ -38,14 +38,15 @@ include_directories(${CERES_INCLUDE_DIRS})
 # src
 include_directories(src/common
         src/loop-closure
-        src/util/logging
         src/util/config
         src/util/io
+        src/util/logging
         src/tools
         src/visualization
         src/DBoW2-ext
         src/surface_recon
         third-party/ORB2_SLAM
+        src/bundle-adjustment
         )
 
 
@@ -58,8 +59,20 @@ file(GLOB orb2_src third-party/ORB2_SLAM/*(.h|.cpp))
 file(GLOB surface_recon_src src/surface_recon/*)
 file(GLOB loop_detector_src src/loop-closure/*(.h|.cpp))
 file(GLOB logging_src src/util/logging/*.cpp)
-file(GLOB config_src src/util/config/*)
-file(GLOB io_src src/util/io/*)
+file(GLOB config_src src/util/config/*.cpp)
+file(GLOB io_src src/util/io/*.cpp)
+
+set(all_src ${common_src}
+        ${dow2_ext_src}
+        ${visualization_src}
+        ${orb2_src}
+        ${surface_recon_src}
+        ${loop_detector_src}
+        ${logging_src}
+        ${config_src}
+        ${io_src}
+        src/bundle-adjustment/bundle_adjuster.cpp
+        )
 
 ## Loop-detector
 #add_executable(loop_closing src/tests/loop_closing.cpp
@@ -109,17 +122,16 @@ MESSAGE("logging_src: ${logging_src}")
 #        ${PCL_LIBRARIES})
 
 add_executable(map_generator src/map_generator.cpp
-        ${common_src}
-        ${logging_src}
-        ${config_src}
-        ${visualization_src}
-        ${surface_recon_src}
+        ${all_src}
         )
 target_link_libraries(map_generator
         ${OpenCV_LIBS}
         ${Pangolin_LIBRARIES}
         ${DBoW2_LIBS}
-        ${PCL_LIBRARIES})
+        ${DLib_LIBS}
+        ${PCL_LIBRARIES}
+        ${CERES_LIBRARIES}
+        )
 
 # =================== playground ===================
 add_subdirectory(playground)
