@@ -93,4 +93,18 @@ void Map::UpdateConnections() {
         (*it)->UpdateConnections();
 }
 
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr Map::GetPC() {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+    auto map_points = GetAllMapPoints();
+
+    for (MapPoint * point : map_points){
+        Eigen::Vector3d pos = point->GetWorldPos();
+        cloud->push_back(pcl::PointXYZ(pos[0],pos[1],pos[2]));
+    }
+
+    return cloud;
+}
+
 }  // namespace SLAM_VIEWER
