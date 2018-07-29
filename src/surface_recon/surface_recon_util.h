@@ -26,9 +26,12 @@ pcl::PointCloud<pcl::Normal>::Ptr pcl_compute_normal(pcl::PointCloud<pcl::PointX
 pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double mu, double maximumNearestNeighbors);
 pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
+pcl::PolygonMesh pcl_polygonmesh_playground();
 
 //std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
-void pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+// @Params:
+//      min_valid_points: the ratio of points to keep in the output (reconstructed surfaces)
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double min_preserve_ratio);
 
 #endif //SLAM_MAPGEN_SURFACE_RECON_UTIL_H

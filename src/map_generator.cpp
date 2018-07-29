@@ -41,6 +41,7 @@ void init_config(NodeConfig& config){
     config.add_namespace("GlobalBA");
     config.add_namespace("SurfaceRecon");
     config.add_namespace("ReconFastTriangulation");
+    config.add_namespace("PlaneRANSAC");
 
     config.add_param("Common", "img_dir", "string");
     config.add_param("Common", "trajectory", "string");
@@ -54,6 +55,7 @@ void init_config(NodeConfig& config){
 
     config.add_param("ReconFastTriangulation", "mu", "double");
     config.add_param("ReconFastTriangulation", "maximumNearestNeighbors", "double");
+    config.add_param("PlaneRANSAC", "minPreserveRatio", "double");
 
 }
 
@@ -228,7 +230,30 @@ int surface_recon(Map& map, Camera& cam, NodeConfig& config){
     }
     else if (config.get_string_param("SurfaceRecon","reconMethod") == "PlaneRANSAC"){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
-        pcl_ransac_plane(cloud);
+
+        double minPreserveRatio = config.get_double_param("PlaneRANSAC","minPreserveRatio");
+        auto clouds = pcl_ransac_plane(cloud, minPreserveRatio);
+
+        // write the pointcloud to disk
+        pcl::PCDWriter writer;
+        for (int i = 0; i < clouds.size(); i++){
+            std::stringstream ss;
+            ss << "table_scene_lms400_plane_" << i << ".xyz";
+            writer.write<pcl::PointXYZ> (ss.str (), *clouds[i], false);
+        }
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_full(new pcl::PointCloud<pcl::PointXYZ>);
+        for (int i = 0; i < clouds.size(); i++){
+            *cloud_full = *cloud_full + *clouds[i];
+        }
+        writer.write<pcl::PointXYZ> ("cloud_full.xyz", *cloud_full, false);
+        // run surface reconstruction again to get the mesh
+        double mu = config.get_double_param("ReconFastTriangulation", "mu");
+        double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
+        auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors);
+
+        // save the polygon
+        pcl::io::saveVTKFile("mesh.vtk",triangles);
     }
     else{
         LOG_ERROR << "Reconstruction method " << config.get_string_param("SurfaceRecon","reconMethod") << " not implemented." << std::endl;
@@ -242,6 +267,11 @@ int main(int argc, const char * argv[]){
     for (int i = 1; i < argc; i++){
         if (strcmp(argv[i], "--print-config") == 0){
             print_example_config();
+            return 0;
+        }
+        else if (strcmp(argv[i], "--play") == 0){
+            auto triangles = pcl_polygonmesh_playground();
+            pcl::io::saveVTKFile("mesh.vtk",triangles);
             return 0;
         }
         else{

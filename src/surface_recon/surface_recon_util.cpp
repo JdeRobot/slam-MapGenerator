@@ -10,7 +10,7 @@ pcl::PointCloud<pcl::Normal>::Ptr pcl_compute_normal(pcl::PointCloud<pcl::PointX
     tree->setInputCloud(cloud);
     n.setInputCloud(cloud);
     n.setSearchMethod(tree);
-    n.setKSearch(20);
+    n.setKSearch(5);
     n.compute(*normals);
 //* normals should not contain the point normals + surface curvatures
 
@@ -42,7 +42,7 @@ pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
 
 // Set typical values for the parameters
     gp3.setMu(mu);
-    gp3.setMaximumNearestNeighbors(maximumNearestNeighbors);
+    gp3.setMaximumNearestNeighbors((int)maximumNearestNeighbors);
     gp3.setMaximumSurfaceAngle(M_PI / 4); // 45 degrees
     gp3.setMinimumAngle(M_PI / 18); // 10 degrees
     gp3.setMaximumAngle(2 * M_PI / 3); // 120 degrees
@@ -62,7 +62,39 @@ pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     return triangles;
 }
 
+pcl::PolygonMesh pcl_polygonmesh_playground(){
+    pcl::PolygonMesh mesh;
 
+    // create vertex
+    pcl::PointCloud<pcl::PointXYZ> cloud;
+    cloud.push_back(pcl::PointXYZ(0,0,0));
+    cloud.push_back(pcl::PointXYZ(0,1,0));
+    cloud.push_back(pcl::PointXYZ(1,0,0));
+    cloud.push_back(pcl::PointXYZ(1,1,0));
+
+    pcl::PCLPointCloud2 cloud2;
+    pcl::toPCLPointCloud2(cloud,cloud2);
+    mesh.cloud = cloud2;
+
+    // create polygon
+    std::vector<pcl::Vertices> vertices_vector;
+
+    pcl::Vertices v1, v2;
+    v1.vertices.push_back(0);
+    v1.vertices.push_back(1);
+    v1.vertices.push_back(2);
+
+    v2.vertices.push_back(1);
+    v2.vertices.push_back(2);
+    v2.vertices.push_back(3);
+
+    vertices_vector.push_back(v1);
+    vertices_vector.push_back(v2);
+
+    mesh.polygons = vertices_vector;
+
+    return mesh;
+}
 
 pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
     // compute the normals
@@ -108,17 +140,16 @@ pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
 //}
 
 
-void pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) {
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double min_preserve_ratio) {
 
-    // Write the downsampled version to disk
-    pcl::PCDWriter writer;
-    writer.write<pcl::PointXYZ> ("original.xyz", *cloud, false);
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clouds;
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>),
         cloud_f (new pcl::PointCloud<pcl::PointXYZ>);
 
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+
     // Create the segmentation object
     pcl::SACSegmentation<pcl::PointXYZ> seg;
     // Optional
@@ -132,10 +163,10 @@ void pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) {
     // Create the filtering object
     pcl::ExtractIndices<pcl::PointXYZ> extract;
 
-    int i = 0, nr_points = (int) cloud->points.size();
+    int nr_points = (int) cloud->points.size();
 
     // While 30% of the original cloud is still there
-    while (cloud->points.size() > 0.3 * nr_points) {
+    while (cloud->points.size() > min_preserve_ratio * nr_points) {
         // Segment the largest planar component from the remaining cloud
         seg.setInputCloud(cloud);
         seg.segment(*inliers, *coefficients);
@@ -151,15 +182,22 @@ void pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) {
         extract.filter(*cloud_p);
         std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height
                   << " data points." << std::endl;
+        std::cerr << "Model Coefficients: ";
+        for (int i = 0 ; i < coefficients.get()->values.size(); i++){
+            std::cerr << coefficients.get()->values[i] << "  ";
+        }
+        std::cerr << std::endl;
 
-        std::stringstream ss;
-        ss << "table_scene_lms400_plane_" << i << ".xyz";
-        writer.write<pcl::PointXYZ> (ss.str (), *cloud_p, false);
+        // Save the pointcloud
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_to_save(new pcl::PointCloud<pcl::PointXYZ>);
+        *cloud_to_save = *cloud_p;
+        clouds.push_back(cloud_to_save);
 
         // Create the filtering object
         extract.setNegative (true);
         extract.filter (*cloud_f);
         cloud.swap (cloud_f);
-        i++;
     }
+
+    return clouds;
 }

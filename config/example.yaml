@@ -1,0 +1,11 @@
+%YAML:1.0
+---
+Common:
+   img_dir: /home/ernest/SLAM/datasets/sequence_43/undistorted_images/
+   trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectory_noloop.yaml"
+   EnableLoopClosure: 1.
+# GlobalBA has no local parameters.
+LoopClosure:
+   Vocabulary: "/home/ernest/SLAM/slam-MapGenerator/Vocabulary/ORBvoc.tar.gz"
+   loop_detection_threshold: 5.7499999999999996e-01
+# SurfaceRecon has no local parameters.
