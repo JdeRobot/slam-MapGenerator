@@ -19,7 +19,9 @@ pcl::PointCloud<pcl::Normal>::Ptr pcl_compute_normal(pcl::PointCloud<pcl::PointX
     return normals;
 }
 
-pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double mu, double maximumNearestNeighbors) {
+pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
+        double mu, double maximumNearestNeighbors, double searchRadius) {
+
     // compute the normals
     auto normals = pcl_compute_normal(cloud);
     // Concatenate the XYZ and normal fields*
@@ -38,7 +40,7 @@ pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     pcl::PolygonMesh triangles;
 
 // Set the maximum distance between connected points (maximum edge length)
-    gp3.setSearchRadius(0.025);
+    gp3.setSearchRadius(searchRadius);
 
 // Set typical values for the parameters
     gp3.setMu(mu);
@@ -200,4 +202,76 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointClou
     }
 
     return clouds;
+}
+
+pcl::PolygonMesh build_rect_mesh(std::vector<pcl::PointXYZ> corners){
+    if (corners.size() != 4){
+        throw std::runtime_error("Error input for build_rect_mesh(), only 4 corners are acceptable.");
+    }
+
+    pcl::PolygonMesh mesh;
+
+    // create vertex
+    pcl::PointCloud<pcl::PointXYZ> cloud;
+    cloud.push_back(pcl::PointXYZ(0,0,0));
+    cloud.push_back(pcl::PointXYZ(0,1,0));
+    cloud.push_back(pcl::PointXYZ(1,0,0));
+    cloud.push_back(pcl::PointXYZ(1,1,0));
+
+    pcl::PCLPointCloud2 cloud2;
+    pcl::toPCLPointCloud2(cloud,cloud2);
+    mesh.cloud = cloud2;
+
+    // create polygon
+    std::vector<pcl::Vertices> vertices_vector;
+
+    pcl::Vertices v1, v2;
+    v1.vertices.push_back(0);
+    v1.vertices.push_back(1);
+    v1.vertices.push_back(2);
+
+    v2.vertices.push_back(1);
+    v2.vertices.push_back(2);
+    v2.vertices.push_back(3);
+
+    vertices_vector.push_back(v1);
+    vertices_vector.push_back(v2);
+
+    mesh.polygons = vertices_vector;
+
+    return mesh;
+}
+
+
+pcl::PolygonMesh concatenate_polygon_mesh(std::vector<pcl::PolygonMesh> input_meshes){
+    pcl::PolygonMesh output_mesh;
+    pcl::PointCloud<pcl::PointXYZ> output_cloud;
+
+    int point_idx_offset = 0;
+    for (auto mesh : input_meshes){
+        pcl::PointCloud<pcl::PointXYZ> cloud;
+        pcl::fromPCLPointCloud2(mesh.cloud,cloud);
+
+        // add vertices to the new mesh
+        output_cloud = output_cloud + cloud;
+
+        // add polygon to the new mesh
+        for (pcl::Vertices polygon_old : mesh.polygons){
+
+            pcl::Vertices polygon_new;
+
+            polygon_new.vertices.push_back(polygon_old.vertices[0] + point_idx_offset);
+            polygon_new.vertices.push_back(polygon_old.vertices[1] + point_idx_offset);
+            polygon_new.vertices.push_back(polygon_old.vertices[2] + point_idx_offset);
+
+            output_mesh.polygons.push_back(polygon_new);
+        }
+
+        // update the mesh offset
+        point_idx_offset += cloud.points.size();
+    }
+
+    // set the output mesh's pointcloud
+    pcl::toPCLPointCloud2(output_cloud,output_mesh.cloud);
+    return output_mesh;
 }

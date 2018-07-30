@@ -15,8 +15,9 @@ SurfaceRecon:
    reconMethod: "PlaneRANSAC"
 
 ReconFastTriangulation:
-   mu: 2.5
-   maximumNearestNeighbors: 100
+   mu: 10
+   maximumNearestNeighbors: 10000
+   searchRadius: 25
 
 PlaneRANSAC:
    minPreserveRatio: 0.25

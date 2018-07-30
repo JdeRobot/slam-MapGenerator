@@ -23,7 +23,9 @@
 
 pcl::PointCloud<pcl::Normal>::Ptr pcl_compute_normal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
-pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double mu, double maximumNearestNeighbors);
+pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double mu,
+        double maximumNearestNeighbors, double searchRadius);
+
 pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
 pcl::PolygonMesh pcl_polygonmesh_playground();
@@ -32,6 +34,14 @@ pcl::PolygonMesh pcl_polygonmesh_playground();
 
 // @Params:
 //      min_valid_points: the ratio of points to keep in the output (reconstructed surfaces)
-std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double min_preserve_ratio);
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
+        double minPreserveRatio);
+
+// Generate a rectangular based on the four corners
+// @Params:
+//      corners:            the four corners to define a rectangular
+pcl::PolygonMesh build_rect_mesh(std::vector<pcl::PointXYZ> corners);
+
+pcl::PolygonMesh concatenate_polygon_mesh(std::vector<pcl::PolygonMesh> input_meshes);
 
 #endif //SLAM_MAPGEN_SURFACE_RECON_UTIL_H

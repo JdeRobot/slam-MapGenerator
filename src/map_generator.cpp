@@ -55,6 +55,7 @@ void init_config(NodeConfig& config){
 
     config.add_param("ReconFastTriangulation", "mu", "double");
     config.add_param("ReconFastTriangulation", "maximumNearestNeighbors", "double");
+    config.add_param("ReconFastTriangulation", "searchRadius", "double");
     config.add_param("PlaneRANSAC", "minPreserveRatio", "double");
 
 }
@@ -218,17 +219,19 @@ int surface_recon(Map& map, Camera& cam, NodeConfig& config){
 
         double mu = config.get_double_param("ReconFastTriangulation", "mu");
         double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
+        double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
 
         // TODO: for debugging only
         LOG_INFO << "Parameter mu: " << mu << std::endl;
         LOG_INFO << "Parameter maximumNearestNeighbors" << maximumNearestNeighbors << std::endl;
 
-        auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors);
+        auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors, searchRadius);
 
         // save the polygon
         pcl::io::saveVTKFile("mesh.vtk",triangles);
     }
     else if (config.get_string_param("SurfaceRecon","reconMethod") == "PlaneRANSAC"){
+        // use RANSAC to remove outliners
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
 
         double minPreserveRatio = config.get_double_param("PlaneRANSAC","minPreserveRatio");
@@ -247,13 +250,25 @@ int surface_recon(Map& map, Camera& cam, NodeConfig& config){
             *cloud_full = *cloud_full + *clouds[i];
         }
         writer.write<pcl::PointXYZ> ("cloud_full.xyz", *cloud_full, false);
+
+
         // run surface reconstruction again to get the mesh
         double mu = config.get_double_param("ReconFastTriangulation", "mu");
         double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
-        auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors);
+        double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
+
+        // individual reconstruction on each plane
+        std::vector<pcl::PolygonMesh> meshes;
+        for (int i = 0; i < clouds.size(); i++) {
+            auto triangles = pcl_fast_surface_recon(clouds[i], mu, maximumNearestNeighbors, searchRadius);
+            meshes.push_back(triangles);
+        }
+
+        // combine those planes
+        auto triangles_full = concatenate_polygon_mesh(meshes);
 
         // save the polygon
-        pcl::io::saveVTKFile("mesh.vtk",triangles);
+        pcl::io::saveVTKFile("mesh.vtk",triangles_full);
     }
     else{
         LOG_ERROR << "Reconstruction method " << config.get_string_param("SurfaceRecon","reconMethod") << " not implemented." << std::endl;
