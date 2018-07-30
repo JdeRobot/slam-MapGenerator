@@ -207,6 +207,7 @@ int bundle_ajustment(Map& map, const Camera& cam){
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_SCHUR;
     options.minimizer_progress_to_stdout = true;
+    options.max_num_iterations = 2000;
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
@@ -318,7 +319,11 @@ int main(int argc, const char * argv[]){
     Camera cam;
     Config::ReadParameters(config.get_string_param("Common", "trajectory"), map, cam);
 
-
+    // Global BA
+    if (config.get_double_param("Common","enableBA") == 1){
+        bundle_ajustment(map,cam);
+    }
+    
 
     // Surface Reconstruction
     surface_recon(map,cam,config);

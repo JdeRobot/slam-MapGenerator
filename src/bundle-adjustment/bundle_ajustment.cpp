@@ -146,6 +146,7 @@ namespace MapGen{
         }
 
         // fill in initial camera poses and point poses
+        // camera poses
         for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
             // get the ruler angle of the rotation
             Eigen::Quaterniond q(keyframes[kf_idx]->GetRotation());
@@ -165,6 +166,16 @@ namespace MapGen{
             parameters_[kf_idx*9 + 6] = intrinsic.fx;
             parameters_[kf_idx*9 + 7] = intrinsic.k1;
             parameters_[kf_idx*9 + 8] = intrinsic.k2;
+        }
+
+        // fill in point poses
+        int starting_idx = keyframes.size() * 9;
+        for (auto point : map_points){
+            auto point_id = point->GetID();
+            auto point_pos = point->GetWorldPos();
+            parameters_[starting_idx + point_id * 3] = point_pos[0];
+            parameters_[starting_idx + point_id * 3 + 1] = point_pos[1];
+            parameters_[starting_idx + point_id * 3 + 2] = point_pos[2];
         }
 
         return true;
