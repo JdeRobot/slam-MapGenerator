@@ -45,6 +45,7 @@
 
 #include "ceres/ceres.h"
 #include "ceres/rotation.h"
+#include "Map.h"
 
 
 namespace MapGen {
@@ -68,6 +69,7 @@ namespace MapGen {
 
         bool LoadFile(const char *filename);
 
+        bool LoadFromMap(Map& map);
     private:
         template<typename T>
         void FscanfOrDie(FILE *fptr, const char *format, T *value);

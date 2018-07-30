@@ -199,4 +199,8 @@ namespace MapGen {
         return descriptor_;
     }
 
+    std::map<MapPoint*, Eigen::Vector2d> KeyFrame::GetObservation() {
+        return mapPoints_;
+    }
+
 }  // namespace SLAM_VIEWER

@@ -58,7 +58,7 @@ class KeyFrame {
     // MapPoint observation functions
     void AddObservation(MapPoint* mp, const std::vector<double> &pixel);
     void EraseObservation(MapPoint* mp);
-
+    std::map<MapPoint*, Eigen::Vector2d> GetObservation();
 
 
     void setBowVector(const DBoW2::BowVector& bow_vector);

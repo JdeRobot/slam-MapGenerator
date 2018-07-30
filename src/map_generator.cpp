@@ -23,7 +23,7 @@
 #include "pose_graph_3d.h"
 
 // Bundle Adjustment
-#include "bundleajustment.h"
+#include "bundle_ajustment.h"
 
 // Surface Reconstruction
 #include "surface_recon_util.h"
@@ -165,19 +165,24 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
     }
 }
 
+void build_bal_problem(BALProblem& bal_problem, Map& map){
+
+}
+
 // TODO: need change the IO
 int bundle_ajustment(int argc, const char * argv[]){
     google::InitGoogleLogging(argv[0]);
-    if (argc != 2) {
-        std::cerr << "usage: simple_bundle_adjuster <bal_problem>\n";
-        return 1;
-    }
-
+//    if (argc != 2) {
+//        std::cerr << "usage: simple_bundle_adjuster <bal_problem>\n";
+//        return 1;
+//    }
+//
+//    BALProblem bal_problem;
+//    if (!bal_problem.LoadFile(argv[1])) {
+//        std::cerr << "ERROR: unable to open file " << argv[1] << "\n";
+//        return 1;
+//    }
     BALProblem bal_problem;
-    if (!bal_problem.LoadFile(argv[1])) {
-        std::cerr << "ERROR: unable to open file " << argv[1] << "\n";
-        return 1;
-    }
 
     const double* observations = bal_problem.observations();
 
@@ -212,7 +217,7 @@ int bundle_ajustment(int argc, const char * argv[]){
 
 }
 
-// TODO: under dev
+// TODO: under dev (RANSAC is kind of working)
 int surface_recon(Map& map, Camera& cam, NodeConfig& config){
     if (config.get_string_param("SurfaceRecon","reconMethod") == "FastTriangulation"){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();

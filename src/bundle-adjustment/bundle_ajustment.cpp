@@ -35,7 +35,7 @@
 // This does not use the best configuration for solving; see the more involved
 // bundle_adjuster.cc file for details.
 
-#include "bundleajustment.h"
+#include "bundle_ajustment.h"
 
 namespace MapGen{
     BALProblem::~BALProblem() {
@@ -105,6 +105,21 @@ namespace MapGen{
         int num_scanned = fscanf(fptr, format, value);
         if (num_scanned != 1) {
             LOG(FATAL) << "Invalid UW data file.";
+        }
+    }
+
+
+    bool BALProblem::LoadFromMap(MapGen::Map &map) {
+
+        auto keyframes = map.GetAllKeyFrames();
+        auto map_points = map.GetAllMapPoints();
+
+        num_cameras_ = keyframes.size();
+        num_points_ = map_points.size();
+
+        // TODO: still working on this part
+        for (auto frame : keyframes){
+
         }
     }
 

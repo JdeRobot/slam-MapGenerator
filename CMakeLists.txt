@@ -71,7 +71,7 @@ set(all_src ${common_src}
         ${logging_src}
         ${config_src}
         ${io_src}
-        src/bundle-adjustment/bundle_adjuster.cpp
+        src/bundle-adjustment/bundle_ajustment.cpp
         )
 
 ## Loop-detector
