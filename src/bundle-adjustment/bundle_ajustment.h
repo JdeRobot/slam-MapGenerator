@@ -42,10 +42,12 @@
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <pcl/common/eigen.h>
 
 #include "ceres/ceres.h"
 #include "ceres/rotation.h"
 #include "Map.h"
+#include "Camera.h"
 
 
 namespace MapGen {
@@ -69,7 +71,7 @@ namespace MapGen {
 
         bool LoadFile(const char *filename);
 
-        bool LoadFromMap(Map& map);
+        bool LoadFromMap(Map& map, const Camera& cam);
     private:
         template<typename T>
         void FscanfOrDie(FILE *fptr, const char *format, T *value);

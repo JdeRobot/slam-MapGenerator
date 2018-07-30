@@ -109,18 +109,65 @@ namespace MapGen{
     }
 
 
-    bool BALProblem::LoadFromMap(MapGen::Map &map) {
+    bool BALProblem::LoadFromMap(MapGen::Map &map, const Camera& cam) {
 
         auto keyframes = map.GetAllKeyFrames();
         auto map_points = map.GetAllMapPoints();
 
         num_cameras_ = keyframes.size();
         num_points_ = map_points.size();
-
-        // TODO: still working on this part
+        num_observations_ = 0;
         for (auto frame : keyframes){
-
+            num_observations_ += frame->GetObservation().size();
         }
+
+        // to describe an observation
+        point_index_ = new int[num_observations_];
+        camera_index_ = new int[num_observations_];
+        observations_ = new double[2 * num_observations_];
+
+        // the initial camera poses and point poses
+        num_parameters_ = 9 * num_cameras_ + 3 * num_points_;
+        parameters_ = new double[num_parameters_];
+
+        // fill in the observations
+        int ob_idx = 0;
+        for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
+            auto frame = keyframes[kf_idx];
+            auto observations_per_frame = frame->GetObservation();
+            for (std::pair<MapPoint *, Eigen::Vector2d> ob : observations_per_frame){
+                // use the consisting keyframe index instead of the original KF index
+                camera_index_[ob_idx] = kf_idx;
+                point_index_[ob_idx] = ob.first->GetID();
+                observations_[2*ob_idx] = ob.second(0);
+                observations_[2*ob_idx + 1] = ob.second(1);
+                ob_idx ++;
+            }
+        }
+
+        // fill in initial camera poses and point poses
+        for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
+            // get the ruler angle of the rotation
+            Eigen::Quaterniond q(keyframes[kf_idx]->GetRotation());
+            Eigen::Vector3d rotation_vec = q.toRotationMatrix().eulerAngles(0,1,2);
+            parameters_[kf_idx*9] = rotation_vec[0];
+            parameters_[kf_idx*9 + 1] = rotation_vec[1];
+            parameters_[kf_idx*9 + 2] = rotation_vec[2];
+
+            // translation
+            Eigen::Vector3d translation_vec = keyframes[kf_idx]->GetTranslation();
+            parameters_[kf_idx*9 + 3] = translation_vec[0];
+            parameters_[kf_idx*9 + 4] = translation_vec[1];
+            parameters_[kf_idx*9 + 5] = translation_vec[2];
+
+            // camera intrinsic
+            auto intrinsic = cam.get_camera_params();
+            parameters_[kf_idx*9 + 6] = intrinsic.fx;
+            parameters_[kf_idx*9 + 7] = intrinsic.k1;
+            parameters_[kf_idx*9 + 8] = intrinsic.k2;
+        }
+
+        return true;
     }
 
 

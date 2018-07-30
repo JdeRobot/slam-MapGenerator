@@ -60,4 +60,6 @@ std::set<KeyFrame*> MapPoint::GetObservations() {
     return observations_;
 }
 
+    int MapPoint::GetID() {return id_;}
+
 }  // namespace SLAM_VIEWER

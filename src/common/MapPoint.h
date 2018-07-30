@@ -38,6 +38,8 @@ class MapPoint {
  public:
     MapPoint(int id, const std::vector<double> &position);
 
+    int GetID();
+
     Eigen::Vector3d GetWorldPos();
 
     // Observations functions

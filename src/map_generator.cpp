@@ -165,13 +165,10 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
     }
 }
 
-void build_bal_problem(BALProblem& bal_problem, Map& map){
-
-}
 
 // TODO: need change the IO
-int bundle_ajustment(int argc, const char * argv[]){
-    google::InitGoogleLogging(argv[0]);
+int bundle_ajustment(Map& map, const Camera& cam){
+//    google::InitGoogleLogging(argv[0]);
 //    if (argc != 2) {
 //        std::cerr << "usage: simple_bundle_adjuster <bal_problem>\n";
 //        return 1;
@@ -183,6 +180,7 @@ int bundle_ajustment(int argc, const char * argv[]){
 //        return 1;
 //    }
     BALProblem bal_problem;
+    bal_problem.LoadFromMap(map, cam);
 
     const double* observations = bal_problem.observations();
 
