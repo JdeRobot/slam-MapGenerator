@@ -96,30 +96,8 @@ namespace MapGen {
         void dump(const std::string& filename );
         void read_from_file(const std::string& filename);
 
-        std::string get_img_dir();
-
-        std::string get_trajectory();
-        std::string get_pointcloud();
-        std::string get_vocabulary();
-        bool use_trajectory();
-
-        double get_threshold();
-
-        bool use_fast_triangulation_recon();
-        bool use_poisson_recon();
-
     private:
         std::map<std::string, ParamNamespace> namespace_map;
-
-        std::string img_dir_;
-        std::string trajectory_;
-        std::string vocabulary_;
-        std::string pc_filename_;
-        double threshold_;
-
-        bool use_trajectory_;
-        bool use_fast_triangulation_recon_;
-        bool use_poisson_recon_;
     };
 }
 

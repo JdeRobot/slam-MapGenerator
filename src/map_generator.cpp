@@ -87,8 +87,13 @@ void print_example_config(){
 
 // TODO
 void loop_closing(Map& map, Camera& camera, NodeConfig& config){
+    // Get Config
+    std::string img_dir = config.get_string_param("LoopClosure", "img_dir");
+    std::string vocabulary = config.get_string_param("LoopClosure", "Vocabulary");
+    double threshold = config.get_double_param("LoopClosure", "loop_detection_threshold");
+
     // detect loops
-    MapGen::LoopDetector detector(map,config.get_img_dir(), config.get_vocabulary(), config.get_threshold());
+    MapGen::LoopDetector detector(map,img_dir, vocabulary, threshold);
 
     // print out the loop detection pair
     auto closing_pairs = detector.getLoopClosingPairs();

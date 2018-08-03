@@ -66,10 +66,20 @@ namespace MapGen {
     }
 
     std::string ParamNamespace::get_string_param(const std::string& name) {
+        if (string_params_.count(name) == 0){
+            LOG_ERROR << "Parameter Name: " << name << "not found in NameSpace " << name_space_ << std::endl;
+            throw std::runtime_error("");
+        }
+
         return string_params_[name];
     }
 
     double ParamNamespace::get_double_param(const std::string &name) {
+        if (double_params_.count(name) == 0){
+            LOG_ERROR << "Parameter Name: " << name << "not found in NameSpace " << name_space_ << std::endl;
+            throw std::runtime_error("");
+        }
+
         return double_params_[name];
     }
 
@@ -134,10 +144,20 @@ namespace MapGen {
 
 
     std::string NodeConfig::get_string_param(const std::string &name_space, const std::string &name) {
+        if (namespace_map.count(name_space) == 0){
+            LOG_ERROR << "Namespace: " << name_space << "not found in NodeConfig" << std::endl;
+            throw std::runtime_error("");
+        }
+
         return namespace_map[name_space].get_string_param(name);
     }
 
     double NodeConfig::get_double_param(const std::string &name_space, const std::string &name) {
+        if (namespace_map.count(name_space) == 0){
+            LOG_ERROR << "Namespace: " << name_space << "not found in NodeConfig" << std::endl;
+            throw std::runtime_error("");
+        }
+
         return namespace_map[name_space].get_double_param(name);
     }
 
@@ -232,25 +252,4 @@ namespace MapGen {
         }
         LOG_INFO << "========================================================================" <<std::endl;
     }
-
-    std::string NodeConfig::get_img_dir() {
-        if (img_dir_.size() == 0){
-            LOG_ERROR << "img_dir: " << img_dir_ << " does not exist." << std::endl;
-            throw std::runtime_error("");
-        }
-
-        return img_dir_;
-    }
-    std::string NodeConfig::get_trajectory() {return trajectory_;}
-    std::string NodeConfig::get_pointcloud() {return pc_filename_;}
-    std::string NodeConfig::get_vocabulary() {return vocabulary_;}
-
-    double NodeConfig::get_threshold() {return threshold_;}
-
-    bool NodeConfig::use_trajectory() {
-        return use_trajectory_;
-    }
-
-    bool NodeConfig::use_fast_triangulation_recon(){return use_fast_triangulation_recon_;}
-    bool NodeConfig::use_poisson_recon(){return use_poisson_recon_;}
 }
