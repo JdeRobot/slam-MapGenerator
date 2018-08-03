@@ -72,6 +72,8 @@ namespace MapGen {
         bool LoadFile(const char *filename);
 
         bool LoadFromMap(Map& map, const Camera& cam);
+
+        void SaveToMap(Map& map, const Camera& cam);
     private:
         template<typename T>
         void FscanfOrDie(FILE *fptr, const char *format, T *value);

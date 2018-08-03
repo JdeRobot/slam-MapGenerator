@@ -148,7 +148,7 @@ namespace MapGen{
         // fill in initial camera poses and point poses
         // camera poses
         for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
-            // get the ruler angle of the rotation
+            // get the euler angle of the rotation
             Eigen::Quaterniond q(keyframes[kf_idx]->GetRotation());
             Eigen::Vector3d rotation_vec = q.toRotationMatrix().eulerAngles(0,1,2);
             parameters_[kf_idx*9] = rotation_vec[0];
@@ -179,6 +179,51 @@ namespace MapGen{
         }
 
         return true;
+    }
+
+
+    void BALProblem::SaveToMap(MapGen::Map &map, const MapGen::Camera &cam) {
+
+        std::vector<KeyFrame *> keyframes = map.GetAllKeyFrames();
+        std::vector<MapPoint *> map_points = map.GetAllMapPoints();
+
+        for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
+            Eigen::Matrix4d pose = Eigen::Matrix4d::Zero(4,4);
+
+            // get rotation matrix
+            Eigen::Matrix3d rotation_mat;
+            rotation_mat = Eigen::AngleAxisd(parameters_[kf_idx*9], Eigen::Vector3d::UnitX())
+                *Eigen::AngleAxisd(parameters_[kf_idx*9 + 1], Eigen::Vector3d::UnitY())
+                *Eigen::AngleAxisd(parameters_[kf_idx*9 + 2], Eigen::Vector3d::UnitZ());
+
+            for (int i = 0; i < 3; i++){
+                for (int j = 0; j < 3; j++){
+                    pose(i,j) = rotation_mat(i,j);
+                }
+            }
+
+            // translation
+            for (int i = 0; i < 3; i++){
+                pose(i,3) = parameters_[kf_idx*9 + 3 + i];
+            }
+
+            // ignore optimization on camera intrinsic
+
+            pose(3,3) = 1;
+            keyframes[kf_idx]->set_pose(pose);
+        }
+
+        // fill in point poses
+        int starting_idx = keyframes.size() * 9;
+        for (auto point : map_points){
+            auto point_id = point->GetID();
+            Eigen::Vector3d point_pos = Eigen::Vector3d::Zero(3);
+            point_pos[0] = parameters_[starting_idx + point_id * 3];
+            point_pos[1] = parameters_[starting_idx + point_id * 3 + 1];
+            point_pos[2] = parameters_[starting_idx + point_id * 3 + 2];
+
+            point->SetWorldPos(point_pos);
+        }
     }
 
 

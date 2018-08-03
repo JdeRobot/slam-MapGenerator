@@ -41,6 +41,7 @@ class MapPoint {
     int GetID();
 
     Eigen::Vector3d GetWorldPos();
+    void SetWorldPos(Eigen::Vector3d pose);
 
     // Observations functions
     std::set<KeyFrame*> GetObservations();

@@ -47,6 +47,7 @@ void init_config(NodeConfig& config){
     config.add_param("Common", "trajectory", "string");
     config.add_param("Common", "enableLoopClosure", "double");
     config.add_param("Common", "enableBA", "double");
+    config.add_param("Common", "enableSurfaceRecon", "double");
 
     config.add_param("LoopClosure", "Vocabulary", "string");
     config.add_param("LoopClosure", "loop_detection_threshold", "double");
@@ -212,6 +213,10 @@ int bundle_ajustment(Map& map, const Camera& cam){
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
     std::cout << summary.FullReport() << "\n";
+
+    // save back to the map
+    bal_problem.SaveToMap(map, cam);
+
     return 0;
 
 }
@@ -326,7 +331,9 @@ int main(int argc, const char * argv[]){
     
 
     // Surface Reconstruction
-    surface_recon(map,cam,config);
+    if (config.get_double_param("Common","enableSurfaceRecon") == 1){
+        surface_recon(map,cam,config);;
+    }
 
     return 0;
 }
