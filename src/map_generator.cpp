@@ -85,7 +85,7 @@ void print_example_config(){
     LOG_INFO << "Example Config generated and saved to example.yaml" << std::endl;
 }
 
-// TODO
+// TODO (check IO works fine after integration)
 void loop_closing(Map& map, Camera& camera, NodeConfig& config){
     // Get Config
     std::string img_dir = config.get_string_param("LoopClosure", "img_dir");
@@ -106,6 +106,7 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
         LOG_INFO << "detected loop closing pair: " << p.first->GetId() << " & "
                  << p.second->GetId() << std::endl;
     }
+    LOG_INFO << "======================================================" << std::endl;
 
     LOG_INFO << "Detection Completed" << std::endl;
 
@@ -141,8 +142,8 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
 
     // save the original pose
     // MapGen::OutputPoses("poses_original.txt", poses);
-    MapGen::JdeRobotIO::saveTrajectory(map,camera,"poses_original.yaml");
-    LOG_INFO << "original poses saved to poses_original.txt. " << std::endl;
+//    MapGen::JdeRobotIO::saveTrajectory(map,camera,"poses_original.yaml");
+//    LOG_INFO << "original poses saved to poses_original.txt. " << std::endl;
 
     // optimize the pose graph
     ceres::Problem problem;
@@ -169,6 +170,8 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
         }
         frame->set_pose(t);
     }
+
+    JdeRobotIO::saveTrajectory(map,camera,"pose_optimized.yaml");
 }
 
 
