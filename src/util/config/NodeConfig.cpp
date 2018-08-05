@@ -67,7 +67,7 @@ namespace MapGen {
 
     std::string ParamNamespace::get_string_param(const std::string& name) {
         if (string_params_.count(name) == 0){
-            LOG_ERROR << "Parameter Name: " << name << "not found in NameSpace " << name_space_ << std::endl;
+            LOG_ERROR << "Parameter Name: " << name << " not found in NameSpace " << name_space_ << std::endl;
             throw std::runtime_error("");
         }
 
@@ -76,7 +76,7 @@ namespace MapGen {
 
     double ParamNamespace::get_double_param(const std::string &name) {
         if (double_params_.count(name) == 0){
-            LOG_ERROR << "Parameter Name: " << name << "not found in NameSpace " << name_space_ << std::endl;
+            LOG_ERROR << "Parameter Name: " << name << " not found in NameSpace " << name_space_ << std::endl;
             throw std::runtime_error("");
         }
 

@@ -16,6 +16,7 @@
 #include "Map.h"
 #include "Config.h"
 #include "JdeRobotIO.h"
+#include "logging_util.h"
 
 // Loop Closing
 #include "LoopDetector.h"
@@ -87,8 +88,9 @@ void print_example_config(){
 
 // TODO (check IO works fine after integration)
 void loop_closing(Map& map, Camera& camera, NodeConfig& config){
+    LOG_INFO << "==============================Loop Closure================================" << std::endl;
     // Get Config
-    std::string img_dir = config.get_string_param("LoopClosure", "img_dir");
+    std::string img_dir = config.get_string_param("Common", "img_dir");
     std::string vocabulary = config.get_string_param("LoopClosure", "Vocabulary");
     double threshold = config.get_double_param("LoopClosure", "loop_detection_threshold");
 
@@ -101,14 +103,14 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
         LOG_INFO << "detected loop closing pair: " << p.first->GetFilename() << " & "
                  << p.second->GetFilename() << std::endl;
     }
-    LOG_INFO << "======================================================" << std::endl;
-    for (auto p : closing_pairs){
-        LOG_INFO << "detected loop closing pair: " << p.first->GetId() << " & "
-                 << p.second->GetId() << std::endl;
-    }
-    LOG_INFO << "======================================================" << std::endl;
+//    LOG_INFO << "======================================================" << std::endl;
+//    for (auto p : closing_pairs){
+//        LOG_INFO << "detected loop closing pair: " << p.first->GetId() << " & "
+//                 << p.second->GetId() << std::endl;
+//    }
+//    LOG_INFO << "======================================================" << std::endl;
 
-    LOG_INFO << "Detection Completed" << std::endl;
+    LOG_INFO << "Detection Completed, start optimization" << std::endl;
 
 
     MapGen::MapOfPoses poses;
@@ -149,8 +151,7 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
     ceres::Problem problem;
     MapGen::BuildOptimizationProblem(constraints, &poses, &problem);
 
-    bool result = MapGen::SolveOptimizationProblem(&problem);
-    LOG_INFO << "Solving result: " << result << std::endl;
+    MapGen::SolveOptimizationProblem(&problem);
 
 
     // update the Keyframe pose (from the optimizer)
@@ -170,8 +171,7 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
         }
         frame->set_pose(t);
     }
-
-    JdeRobotIO::saveTrajectory(map,camera,"pose_optimized.yaml");
+    LOG_INFO << "======================================================" << std::endl;
 }
 
 
@@ -331,6 +331,13 @@ int main(int argc, const char * argv[]){
     Map map;
     Camera cam;
     Config::ReadParameters(config.get_string_param("Common", "trajectory"), map, cam);
+
+    // Loop Closure
+    if (config.get_double_param("Common", "enableLoopClosure")){
+        loop_closing(map,cam,config);
+        // save trajectory for demo
+        JdeRobotIO::saveTrajectory(map,cam,"pose_optimized.yaml");
+    }
 
     // Global BA
     if (config.get_double_param("Common","enableBA") == 1){
