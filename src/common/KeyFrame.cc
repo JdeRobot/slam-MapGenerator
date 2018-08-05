@@ -199,7 +199,7 @@ namespace MapGen {
         return descriptor_;
     }
 
-    std::map<MapPoint*, Eigen::Vector2d> KeyFrame::GetObservation() {
+    std::map<MapPoint*, Eigen::Vector2d> KeyFrame::GetObservations() {
         return mapPoints_;
     }
 

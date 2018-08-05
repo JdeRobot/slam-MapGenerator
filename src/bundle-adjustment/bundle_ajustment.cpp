@@ -118,7 +118,7 @@ namespace MapGen{
         num_points_ = map_points.size();
         num_observations_ = 0;
         for (auto frame : keyframes){
-            num_observations_ += frame->GetObservation().size();
+            num_observations_ += frame->GetObservations().size();
         }
 
         // to describe an observation
@@ -134,7 +134,7 @@ namespace MapGen{
         int ob_idx = 0;
         for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
             auto frame = keyframes[kf_idx];
-            auto observations_per_frame = frame->GetObservation();
+            auto observations_per_frame = frame->GetObservations();
             for (std::pair<MapPoint *, Eigen::Vector2d> ob : observations_per_frame){
                 // use the consisting keyframe index instead of the original KF index
                 camera_index_[ob_idx] = kf_idx;
