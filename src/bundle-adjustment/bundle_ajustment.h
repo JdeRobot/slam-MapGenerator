@@ -43,6 +43,8 @@
 #include <cstdio>
 #include <iostream>
 #include <pcl/common/eigen.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/eigen.hpp>
 
 #include "ceres/ceres.h"
 #include "ceres/rotation.h"
@@ -87,6 +89,8 @@ namespace MapGen {
         int *camera_index_;
         double *observations_;
         double *parameters_;
+
+        double camera_focus_;
     };
 
 // Templated pinhole camera model for used with Ceres.  The camera is
@@ -94,7 +98,7 @@ namespace MapGen {
 // focal length and 2 for radial distortion. The principal point is not modeled
 // (i.e. it is assumed be located at the image center).
     struct SnavelyReprojectionError {
-        SnavelyReprojectionError(double observed_x, double observed_y);
+        SnavelyReprojectionError(double observed_x, double observed_y, const CameraParameters cam);
 
         template<typename T>
         bool operator()(const T *const camera,
@@ -104,10 +108,17 @@ namespace MapGen {
         // Factory to hide the construction of the CostFunction object from
         // the client code.
         static ceres::CostFunction *Create(const double observed_x,
-                                           const double observed_y);
+                                           const double observed_y,
+                                           const CameraParameters cam
+        );
 
         double observed_x;
         double observed_y;
+
+        double camera_fx;
+        double camera_fy;
+        double camera_cx;
+        double camera_cy;
     };
 
 }

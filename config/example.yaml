@@ -3,9 +3,23 @@
 Common:
    img_dir: /home/ernest/SLAM/datasets/sequence_43/undistorted_images/
    trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectory_noloop.yaml"
-   EnableLoopClosure: 1.
+   enableLoopClosure: 0
+   enableBA: 1
+   enableSurfaceRecon: 0
 # GlobalBA has no local parameters.
+
 LoopClosure:
    Vocabulary: "/home/ernest/SLAM/slam-MapGenerator/Vocabulary/ORBvoc.tar.gz"
-   loop_detection_threshold: 5.7499999999999996e-01
-# SurfaceRecon has no local parameters.
+   loop_detection_threshold: 0.575
+
+SurfaceRecon:
+  # FastTriangulation / Poisson / PlaneRANSAC
+   reconMethod: "PlaneRANSAC"
+
+ReconFastTriangulation:
+   mu: 10
+   maximumNearestNeighbors: 10000
+   searchRadius: 25
+
+PlaneRANSAC:
+   minPreserveRatio: 0.25

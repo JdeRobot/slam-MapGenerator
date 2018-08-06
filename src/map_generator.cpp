@@ -203,7 +203,8 @@ int bundle_ajustment(Map& map, const Camera& cam){
 
         ceres::CostFunction* cost_function =
                 SnavelyReprojectionError::Create(observations[2 * i + 0],
-                                                 observations[2 * i + 1]);
+                                                 observations[2 * i + 1],
+                                                 cam.get_camera_params());
         problem.AddResidualBlock(cost_function,
                                  NULL /* squared loss */,
                                  bal_problem.mutable_camera_for_observation(i),
@@ -342,6 +343,7 @@ int main(int argc, const char * argv[]){
     // Global BA
     if (config.get_double_param("Common","enableBA") == 1){
         bundle_ajustment(map,cam);
+        JdeRobotIO::saveTrajectory(map,cam,"BA_optimized.yaml");
     }
     
 

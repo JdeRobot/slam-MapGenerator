@@ -108,8 +108,9 @@ namespace MapGen{
         }
     }
 
-
     bool BALProblem::LoadFromMap(MapGen::Map &map, const Camera& cam) {
+
+        camera_focus_ = cam.get_camera_params().fx;
 
         auto keyframes = map.GetAllKeyFrames();
         auto map_points = map.GetAllMapPoints();
@@ -148,15 +149,35 @@ namespace MapGen{
         // fill in initial camera poses and point poses
         // camera poses
         for (int kf_idx = 0; kf_idx < keyframes.size(); kf_idx ++){
-            // get the euler angle of the rotation
-            Eigen::Quaterniond q(keyframes[kf_idx]->GetRotation());
-            Eigen::Vector3d rotation_vec = q.toRotationMatrix().eulerAngles(0,1,2);
-            parameters_[kf_idx*9] = rotation_vec[0];
-            parameters_[kf_idx*9 + 1] = rotation_vec[1];
-            parameters_[kf_idx*9 + 2] = rotation_vec[2];
+            Eigen::Matrix3d rotation_mat_eigen = keyframes[kf_idx]->GetRotation().transpose();
+            Eigen::Vector3d translation_vec = -1 * keyframes[kf_idx]->GetRotation().transpose() *
+                    keyframes[kf_idx]->GetTranslation();
+
+//            Eigen::Vector3d rotation_vec = q.toRotationMatrix().eulerAngles(0,1,2);
+//            parameters_[kf_idx*9] = rotation_vec[0];
+//            parameters_[kf_idx*9 + 1] = rotation_vec[1];
+//            parameters_[kf_idx*9 + 2] = rotation_vec[2];
+            cv::Mat rotation_mat(3,3,CV_64F);
+            cv::Mat rotation_vec(3,1,CV_64F);
+
+//            Eigen::Matrix3d rotation_mat_eigen = keyframes[kf_idx]->GetRotation();
+
+            cv::eigen2cv(rotation_mat_eigen, rotation_mat);
+            // convert rotation matrix to Rodrigues vector
+            cv::Rodrigues(rotation_mat,rotation_vec);
+
+//            LOG_INFO << std::endl << rotation_mat_eigen << std::endl;
+//            LOG_INFO << std::endl << rotation_mat << std::endl;
+//            LOG_INFO << std::endl;
+//            LOG_INFO << std::endl << rotation_vec << std::endl;
+//
+//            LOG_INFO << rotation_vec.at<double>(0) << std::endl;
+            parameters_[kf_idx*9] = rotation_vec.at<double>(0);
+            parameters_[kf_idx*9 + 1] = rotation_vec.at<double>(1);
+            parameters_[kf_idx*9 + 2] = rotation_vec.at<double>(2);
 
             // translation
-            Eigen::Vector3d translation_vec = keyframes[kf_idx]->GetTranslation();
+//            Eigen::Vector3d translation_vec = keyframes[kf_idx]->GetTranslation();
             parameters_[kf_idx*9 + 3] = translation_vec[0];
             parameters_[kf_idx*9 + 4] = translation_vec[1];
             parameters_[kf_idx*9 + 5] = translation_vec[2];
@@ -191,20 +212,32 @@ namespace MapGen{
             Eigen::Matrix4d pose = Eigen::Matrix4d::Zero(4,4);
 
             // get rotation matrix
-            Eigen::Matrix3d rotation_mat;
-            rotation_mat = Eigen::AngleAxisd(parameters_[kf_idx*9], Eigen::Vector3d::UnitX())
-                *Eigen::AngleAxisd(parameters_[kf_idx*9 + 1], Eigen::Vector3d::UnitY())
-                *Eigen::AngleAxisd(parameters_[kf_idx*9 + 2], Eigen::Vector3d::UnitZ());
+//            Eigen::Matrix3d rotation_mat;
+//            rotation_mat = Eigen::AngleAxisd(parameters_[kf_idx*9], Eigen::Vector3d::UnitX())
+//                *Eigen::AngleAxisd(parameters_[kf_idx*9 + 1], Eigen::Vector3d::UnitY())
+//                *Eigen::AngleAxisd(parameters_[kf_idx*9 + 2], Eigen::Vector3d::UnitZ());
+            cv::Mat rotation_vec_i(3,1,CV_64F);
+            cv::Mat rotation_mat_i(3,3,CV_64F);
+            rotation_vec_i.at<double>(0) = parameters_[kf_idx*9];
+            rotation_vec_i.at<double>(1) = parameters_[kf_idx*9 + 1];
+            rotation_vec_i.at<double>(2) = parameters_[kf_idx*9 + 2];
+            cv::Rodrigues(rotation_vec_i, rotation_mat_i);
+
+            cv::Mat rotation_mat = rotation_mat_i.t();
 
             for (int i = 0; i < 3; i++){
                 for (int j = 0; j < 3; j++){
-                    pose(i,j) = rotation_mat(i,j);
+                    pose(i,j) = rotation_mat.at<double>(i,j);
                 }
             }
 
+            Eigen::Matrix3d rotation_mat_eig_i(3,3);
+            cv::cv2eigen(rotation_mat_i, rotation_mat_eig_i);
+            Eigen::Vector3d translation_vec_i(parameters_[kf_idx*9 + 3], parameters_[kf_idx*9 + 4], parameters_[kf_idx*9 + 5]);
+            Eigen::Vector3d translation_vec = -1 * rotation_mat_eig_i.transpose() * translation_vec_i;
             // translation
             for (int i = 0; i < 3; i++){
-                pose(i,3) = parameters_[kf_idx*9 + 3 + i];
+                pose(i,3) = translation_vec(i);
             }
 
             // ignore optimization on camera intrinsic
@@ -228,9 +261,14 @@ namespace MapGen{
 
 
     SnavelyReprojectionError::SnavelyReprojectionError(double observed_x,
-                                                       double observed_y) :
+                                                       double observed_y,
+                                                       CameraParameters cam) :
             observed_x(observed_x),
-            observed_y(observed_y) {
+            observed_y(observed_y),
+            camera_fx(cam.fx),
+            camera_fy(cam.fy),
+            camera_cx(cam.cx),
+            camera_cy(cam.cy){
 
     }
 
@@ -245,22 +283,23 @@ namespace MapGen{
         p[1] += camera[4];
         p[2] += camera[5];
 
-        // Compute the center of distortion. The sign change comes from
-        // the camera model that Noah Snavely's Bundler assumes, whereby
-        // the camera coordinate system has a negative z axis.
-        T xp = -p[0] / p[2];
-        T yp = -p[1] / p[2];
+        // Project 3D points to 2D
+        T xp = p[0] / p[2];
+        T yp = p[1] / p[2];
 
         // Apply second and fourth order radial distortion.
-        const T &l1 = camera[7];
-        const T &l2 = camera[8];
-        T r2 = xp * xp + yp * yp;
-        T distortion = 1.0 + r2 * (l1 + l2 * r2);
+//        const T &l1 = camera[7];
+//        const T &l2 = camera[8];
+//        T r2 = xp * xp + yp * yp;
+//        T distortion = 1.0 + r2 * (l1 + l2 * r2);
+        // DO NOT optimize the distortion here
+        double distortion = 1;
 
         // Compute final projected point position.
-        const T &focal = camera[6];
-        T predicted_x = focal * distortion * xp;
-        T predicted_y = focal * distortion * yp;
+        // const T &focal = camera[6];
+        // DO NOT optimize the camera focus here
+        T predicted_x = camera_fx * distortion * xp + camera_cx;
+        T predicted_y = camera_fy * distortion * yp + camera_cy;
 
         // The error is the difference between the predicted and observed position.
         residuals[0] = predicted_x - observed_x;
@@ -270,8 +309,8 @@ namespace MapGen{
     }
 
 
-    ceres::CostFunction* SnavelyReprojectionError::Create(const double observed_x, const double observed_y) {
+    ceres::CostFunction* SnavelyReprojectionError::Create(const double observed_x, const double observed_y, const CameraParameters cam) {
         return (new ceres::AutoDiffCostFunction<SnavelyReprojectionError, 2, 9, 3>(
-                new SnavelyReprojectionError(observed_x, observed_y)));
+                new SnavelyReprojectionError(observed_x, observed_y,cam)));
     }
 }
