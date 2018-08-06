@@ -45,6 +45,7 @@ class MapPoint {
 
     // Observations functions
     std::set<KeyFrame*> GetObservations();
+    std::map<KeyFrame *, Eigen::Vector2d> GetObservarionsWithPose();
     void AddObservation(KeyFrame* kf);
     void EraseObservation(KeyFrame* kf);
 

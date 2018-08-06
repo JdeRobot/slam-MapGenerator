@@ -52,7 +52,7 @@ void Viewer::Run() {
     pangolin::Var<bool> menuShowPoints("menu.Show Points", true, true);
     pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames", true, true);
     pangolin::Var<bool> menuShowGraph("menu.Show Graph", true, true);
-    pangolin::Var<bool> menuShowSurface("menu.Show Surface", false, true);
+    pangolin::Var<bool> menuShowSurface("menu.Show Surface", true, true);
     pangolin::Var<bool> menuReset("menu.Reset", false, false);
 
     // Define Camera Render Object (for view / scene browsing)

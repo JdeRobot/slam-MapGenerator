@@ -187,7 +187,12 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
         }
     }
 
+
     void MapDrawer::DrawSurface() {
+        if (mesh_ == nullptr){
+            return;
+        }
+
         pcl::PointCloud<pcl::PointXYZ> points;
         pcl::fromPCLPointCloud2(mesh_->cloud, points);
 
@@ -198,7 +203,75 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
             int p2_idx = v.vertices[2];
 
             DrawTriangle(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx),true);
+
+            // For debug only
+//            DrawTriangleTexture(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx));
         }
+    }
+
+
+    void MapDrawer::DrawTriangleTexture(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3) {
+
+        std::vector<pcl::PointXYZ> points_pcl;
+        points_pcl.push_back(pt1);
+        points_pcl.push_back(pt2);
+        points_pcl.push_back(pt3);
+        auto observations = GetObservations(points_pcl);
+
+
+    }
+
+
+    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> MapDrawer::GetObservations(std::vector<pcl::PointXYZ> points_pcl) {
+
+
+        std::vector<MapPoint *> points;
+        for (auto pt : points_pcl){
+            points.push_back(SearchNearest(pt));
+        }
+
+        auto observations_1 = points[0]->GetObservarionsWithPose();
+        auto observations_2 = points[1]->GetObservarionsWithPose();
+        auto observations_3 = points[2]->GetObservarionsWithPose();
+
+        std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> res;
+
+        for (auto ob : observations_1){
+            KeyFrame * frame = ob.first;
+            if ((observations_2.count(frame) == 1) && (observations_3.count(frame) == 1)){
+                // found the shared frame
+                res.push_back(std::pair<KeyFrame *, Eigen::Vector2d>(frame, observations_1[frame]));
+                res.push_back(std::pair<KeyFrame *, Eigen::Vector2d>(frame, observations_2[frame]));
+                res.push_back(std::pair<KeyFrame *, Eigen::Vector2d>(frame, observations_3[frame]));
+                LOG_INFO <<  "Found shared parent: " << frame->GetId() << std::endl;
+                break;
+            }
+        }
+
+//        if (res.size() == 0){
+//            LOG_ERROR << "One not found" << std::endl;
+//        }
+
+        return res;
+    }
+
+    MapPoint * MapDrawer::SearchNearest(pcl::PointXYZ point) {
+        MapPoint * pt_best = nullptr;
+        double dist_best = 1e5;
+        for (MapPoint * pt : map_->GetAllMapPoints()){
+            auto pos = pt->GetWorldPos();
+            double dist = abs(point.x - pos[0]) + abs(point.y - pos[1]) + abs(point.z - pos[2]);
+            if (dist < dist_best){
+                dist_best = dist;
+                pt_best = pt;
+            }
+        }
+
+        if (dist_best > 0) {
+            LOG_INFO << "minimum distance: " << dist_best << std::endl;
+        }
+
+        return pt_best;
     }
 
 }  // namespace SLAM_VIEWER

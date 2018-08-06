@@ -26,7 +26,9 @@
 #include <opencv2/core/core.hpp>
 #include <pcl/PolygonMesh.h>
 #include <pcl/conversions.h>
+#include <cmath>
 #include "Map.h"
+#include "MapPoint.h"
 
 namespace MapGen {
 
@@ -44,7 +46,12 @@ class MapDrawer {
     // ==================== Helper Functions =============================
     void DrawTriangle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2, const Eigen::Vector3d& v3, bool draw_border = false);
     void DrawTriangle(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3, bool draw_border);
+    void DrawTriangleTexture(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3);
 
+    // Get the set of observations that the 3 points must be observed in the same image.
+    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> GetObservations(std::vector<pcl::PointXYZ> points_pcl);
+
+    inline MapPoint * SearchNearest(pcl::PointXYZ point);
  private:
     Map * map_;
     pcl::PolygonMeshPtr mesh_;

@@ -376,13 +376,13 @@ int main(int argc, const char * argv[]){
 
     // Global BA
     if (config.get_double_param("Common","enableBA") == 1){
+        JdeRobotIO::saveTrajectory(map,cam,"BA_before_optimized.yaml");
         bundle_ajustment(map,cam);
         JdeRobotIO::saveTrajectory(map,cam,"BA_optimized.yaml");
     }
-    
 
     // Surface Reconstruction
-    pcl::PolygonMeshPtr triangles;
+    pcl::PolygonMeshPtr triangles = nullptr;
     if (config.get_double_param("Common","enableSurfaceRecon") == 1){
         triangles = surface_recon(map,cam,config);;
     }
