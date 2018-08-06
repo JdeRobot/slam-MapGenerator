@@ -9,6 +9,7 @@
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 #include <pcl/io/pcd_io.h>
+#include <thread>
 
 #include "Camera.h"
 #include "NodeConfig.h"
@@ -28,6 +29,10 @@
 
 // Surface Reconstruction
 #include "surface_recon_util.h"
+
+// visualization
+#include "MapDrawer.h"
+#include "Viewer.h"
 
 
 using namespace MapGen;
@@ -231,7 +236,7 @@ int bundle_ajustment(Map& map, const Camera& cam){
 }
 
 // TODO: under dev (RANSAC is kind of working)
-int surface_recon(Map& map, Camera& cam, NodeConfig& config){
+pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
     if (config.get_string_param("SurfaceRecon","reconMethod") == "FastTriangulation"){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
 
@@ -256,18 +261,18 @@ int surface_recon(Map& map, Camera& cam, NodeConfig& config){
         auto clouds = pcl_ransac_plane(cloud, minPreserveRatio);
 
         // write the pointcloud to disk
-        pcl::PCDWriter writer;
-        for (int i = 0; i < clouds.size(); i++){
-            std::stringstream ss;
-            ss << "table_scene_lms400_plane_" << i << ".xyz";
-            writer.write<pcl::PointXYZ> (ss.str (), *clouds[i], false);
-        }
+//        pcl::PCDWriter writer;
+//        for (int i = 0; i < clouds.size(); i++){
+//            std::stringstream ss;
+//            ss << "table_scene_lms400_plane_" << i << ".xyz";
+//            writer.write<pcl::PointXYZ> (ss.str (), *clouds[i], false);
+//        }
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_full(new pcl::PointCloud<pcl::PointXYZ>);
         for (int i = 0; i < clouds.size(); i++){
             *cloud_full = *cloud_full + *clouds[i];
         }
-        writer.write<pcl::PointXYZ> ("cloud_full.xyz", *cloud_full, false);
+//        writer.write<pcl::PointXYZ> ("cloud_full.xyz", *cloud_full, false);
 
 
         // run surface reconstruction again to get the mesh
@@ -283,10 +288,11 @@ int surface_recon(Map& map, Camera& cam, NodeConfig& config){
         }
 
         // combine those planes
-        auto triangles_full = concatenate_polygon_mesh(meshes);
-
+        pcl::PolygonMeshPtr triangles_full(new pcl::PolygonMesh);
+        *triangles_full = concatenate_polygon_mesh(meshes);
+        return triangles_full;
         // save the polygon
-        pcl::io::saveVTKFile("mesh.vtk",triangles_full);
+//        pcl::io::saveVTKFile("mesh.vtk",triangles_full);
     }
     else{
         LOG_ERROR << "Reconstruction method " << config.get_string_param("SurfaceRecon","reconMethod") << " not implemented." << std::endl;
@@ -294,6 +300,34 @@ int surface_recon(Map& map, Camera& cam, NodeConfig& config){
     }
 }
 
+
+int show_result_user_interface(Map& map, pcl::PolygonMeshPtr triangles){
+    // Create user interface
+    MapGen::MapDrawer * mdrawer = new MapGen::MapDrawer(&map, triangles);
+
+    MapGen::Viewer* viewer = nullptr;
+    std::thread* tviewer = nullptr;
+
+    viewer = new MapGen::Viewer(mdrawer);
+    tviewer = new std::thread(&MapGen::Viewer::Run, viewer);
+
+    // Wait until threads start
+    usleep(1000*1e3);
+
+    // Main loop
+    while (!viewer->isFinished()) {
+        // Wait
+        usleep(30*1e3);
+    }
+
+    viewer->RequestFinish();
+    while (!viewer->isFinished())
+        usleep(5000);
+
+    tviewer->join();
+
+    return 0;
+}
 
 int main(int argc, const char * argv[]){
     // deal with running parameters
@@ -348,9 +382,12 @@ int main(int argc, const char * argv[]){
     
 
     // Surface Reconstruction
+    pcl::PolygonMeshPtr triangles;
     if (config.get_double_param("Common","enableSurfaceRecon") == 1){
-        surface_recon(map,cam,config);;
+        triangles = surface_recon(map,cam,config);;
     }
+
+    show_result_user_interface(map, triangles);
 
     return 0;
 }

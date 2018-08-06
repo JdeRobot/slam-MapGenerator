@@ -52,10 +52,8 @@ void Viewer::Run() {
     pangolin::Var<bool> menuShowPoints("menu.Show Points", true, true);
     pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames", true, true);
     pangolin::Var<bool> menuShowGraph("menu.Show Graph", true, true);
+    pangolin::Var<bool> menuShowSurface("menu.Show Surface", false, true);
     pangolin::Var<bool> menuReset("menu.Reset", false, false);
-
-    // TODO: for test only: showing a surface
-    pangolin::Var<bool> menuShowSurfaceTest("menu.Show Surface Test", false, true);
 
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
@@ -80,20 +78,24 @@ void Viewer::Run() {
         if (menuShowPoints)
             mpMapDrawer->DrawMapPoints();
 
-        // TODO: for test only: showing a surface
-        if (menuShowSurfaceTest){
-            Eigen::Vector3f v1(0.0f,0.0f,-1.0f);
-            Eigen::Vector3f v2(1.0f,0.0f,-1.0f);
-            Eigen::Vector3f v3(0.0f,0.0f,0.0f);
-            Eigen::Vector3f v4(1.0f,0.0f,0.0f);
-            Eigen::Vector3f v5(0.0f,-1.0f,0.5f);
-            Eigen::Vector3f v6(1.0f,-1.0f,0.5f);
-            mpMapDrawer->DrawTriangle(v1,v2,v3,true);
-            mpMapDrawer->DrawTriangle(v2,v3,v4,true);
-            mpMapDrawer->DrawTriangle(v3,v4,v5,true);
-            mpMapDrawer->DrawTriangle(v4,v5,v6,true);
-            // std::cout << "[DEBUG, Viewer.cc] " << "=============================" << std::endl;
+        if (menuShowSurface){
+            mpMapDrawer->DrawSurface();
         }
+
+//        // TODO: for test only: showing a surface
+//        if (menuShowSurfaceTest){
+//            Eigen::Vector3f v1(0.0f,0.0f,-1.0f);
+//            Eigen::Vector3f v2(1.0f,0.0f,-1.0f);
+//            Eigen::Vector3f v3(0.0f,0.0f,0.0f);
+//            Eigen::Vector3f v4(1.0f,0.0f,0.0f);
+//            Eigen::Vector3f v5(0.0f,-1.0f,0.5f);
+//            Eigen::Vector3f v6(1.0f,-1.0f,0.5f);
+//            mpMapDrawer->DrawTriangle(v1,v2,v3,true);
+//            mpMapDrawer->DrawTriangle(v2,v3,v4,true);
+//            mpMapDrawer->DrawTriangle(v3,v4,v5,true);
+//            mpMapDrawer->DrawTriangle(v4,v5,v6,true);
+//            // std::cout << "[DEBUG, Viewer.cc] " << "=============================" << std::endl;
+//        }
 
         pangolin::FinishFrame();
 

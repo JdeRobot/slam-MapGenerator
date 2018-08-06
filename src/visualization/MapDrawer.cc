@@ -26,6 +26,12 @@ namespace MapGen {
 
 MapDrawer::MapDrawer(Map *map) {
     map_ = map;
+    mesh_ = nullptr;
+}
+
+MapDrawer::MapDrawer(Map *map, pcl::PolygonMeshPtr mesh) {
+    map_ = map;
+    mesh_ = mesh;
 }
 
 void MapDrawer::DrawMapPoints() {
@@ -120,7 +126,7 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
     }
 }
 
-    void MapDrawer::DrawTriangle(const Eigen::Vector3f &v1, const Eigen::Vector3f &v2, const Eigen::Vector3f &v3, bool draw_border) {
+    void MapDrawer::DrawTriangle(const Eigen::Vector3d &v1, const Eigen::Vector3d &v2, const Eigen::Vector3d &v3, bool draw_border) {
         // std::cout << "[DEBUG, MapDrawer.cc] Draw once" << std::endl;
 
         glBegin(GL_TRIANGLES);
@@ -149,6 +155,50 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
             glEnd();
         }
 
+    }
+
+    void MapDrawer::DrawTriangle(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3, bool draw_border) {
+        // std::cout << "[DEBUG, MapDrawer.cc] Draw once" << std::endl;
+
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.0, 0.0, 1.0);
+
+        // the first vertex
+        glVertex3f(pt1.x,pt1.y,pt1.z);
+        // the second vertex
+        glVertex3f(pt2.x,pt2.y,pt2.z);
+        // the third vertex
+        glVertex3f(pt3.x,pt3.y,pt3.z);
+        glEnd();
+
+        if (draw_border){
+            glBegin(GL_LINES);
+            glColor4f(0.0, 0.0, 0.0, 0.5);
+            // the first line
+            glVertex3f(pt1.x,pt1.y,pt1.z);
+            glVertex3f(pt2.x,pt2.y,pt2.z);
+            // the second line
+            glVertex3f(pt2.x,pt2.y,pt2.z);
+            glVertex3f(pt3.x,pt3.y,pt3.z);
+            // the third line
+            glVertex3f(pt1.x,pt1.y,pt1.z);
+            glVertex3f(pt3.x,pt3.y,pt3.z);
+            glEnd();
+        }
+    }
+
+    void MapDrawer::DrawSurface() {
+        pcl::PointCloud<pcl::PointXYZ> points;
+        pcl::fromPCLPointCloud2(mesh_->cloud, points);
+
+        auto polygons = mesh_->polygons;
+        for (auto v : polygons){
+            int p0_idx = v.vertices[0];
+            int p1_idx = v.vertices[1];
+            int p2_idx = v.vertices[2];
+
+            DrawTriangle(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx),true);
+        }
     }
 
 }  // namespace SLAM_VIEWER

@@ -24,6 +24,8 @@
 #include <pangolin/pangolin.h>
 #include <Eigen/Dense>
 #include <opencv2/core/core.hpp>
+#include <pcl/PolygonMesh.h>
+#include <pcl/conversions.h>
 #include "Map.h"
 
 namespace MapGen {
@@ -32,12 +34,20 @@ class MapDrawer {
  public:
     MapDrawer(Map *map);
 
+    MapDrawer(Map *map, pcl::PolygonMeshPtr mesh);
+
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
-    void DrawTriangle(const Eigen::Vector3f& v1, const Eigen::Vector3f& v2, const Eigen::Vector3f& v3, bool draw_border = false);
+    void DrawSurface();
+
+
+    // ==================== Helper Functions =============================
+    void DrawTriangle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2, const Eigen::Vector3d& v3, bool draw_border = false);
+    void DrawTriangle(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3, bool draw_border);
 
  private:
     Map * map_;
+    pcl::PolygonMeshPtr mesh_;
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
