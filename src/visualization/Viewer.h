@@ -54,9 +54,6 @@ class Viewer {
     bool mbFinishRequested;
     bool mbFinished;
     std::mutex mMutexFinish;
-
-    // TODO: for testing only
-    GLuint texture[2];
 };
 
 }  // namespace SLAM_VIEWER

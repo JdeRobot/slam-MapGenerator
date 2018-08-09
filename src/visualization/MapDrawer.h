@@ -29,16 +29,20 @@
 #include <pcl/PolygonMesh.h>
 #include <pcl/conversions.h>
 #include <cmath>
+#include <fstream>
 #include "Map.h"
 #include "MapPoint.h"
+#include "Config.h"
+#include "SOIL.h"
+#include "NodeConfig.h"
 
 namespace MapGen {
 
 class MapDrawer {
  public:
-    MapDrawer(Map *map);
+    MapDrawer(Map *map, NodeConfig * config);
 
-    MapDrawer(Map *map, pcl::PolygonMeshPtr mesh);
+    MapDrawer(Map *map, NodeConfig * config, pcl::PolygonMeshPtr mesh);
 
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
@@ -50,10 +54,11 @@ class MapDrawer {
     void DrawTriangle(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3, bool draw_border);
 
     // the texture will only refresh once
-    void DrawTriangleTextureOnce(std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points, bool draw_border);
+    void DrawTriangleTexture(std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points, bool draw_border);
+    bool DrawTriangleTexture(int polygon_idx, bool draw_boarder);
 
     // Get the set of observations that the 3 points must be observed in the same image.
-    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> GetObservations(std::vector<MapPoint *> points_pcl);
+    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> GetObservations(std::vector<MapPoint *> points);
 
     inline MapPoint * SearchNearest(pcl::PointXYZ point);
 
@@ -62,8 +67,21 @@ class MapDrawer {
  private:
     Map * map_;
     pcl::PolygonMeshPtr mesh_;
+    NodeConfig * config_;
 
-    std::map<int, MapPoint *> pt_correspondence;
+    //
+    // cached variables to accelerate the GUI
+    //
+    // points (index: point index), establish on startup
+    std::map<int, MapPoint *> pt_correspondence_;
+    // index: polygon index in the mesh
+    std::map<int, std::vector<std::pair<KeyFrame *, Eigen::Vector2d>>> cached_observations_;
+    // the texture
+    std::map<KeyFrame *, GLuint> surf_textures_;
+    // width first
+    std::map<KeyFrame *, std::pair<int, int>> surf_shapes_;
+
+    std::ofstream debug_file;
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

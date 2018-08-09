@@ -53,7 +53,7 @@ void Viewer::Run() {
     pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames", true, true);
     pangolin::Var<bool> menuShowGraph("menu.Show Graph", true, true);
     pangolin::Var<bool> menuShowSurface("menu.Show Surface", true, true);
-    pangolin::Var<bool> menuShowImg("menu.Show Image", false, true);
+    pangolin::Var<bool> menuRefresh("menu.Refresh", false, true);
     pangolin::Var<bool> menuReset("menu.Reset", false, false);
 
     // Define Camera Render Object (for view / scene browsing)
@@ -83,45 +83,39 @@ void Viewer::Run() {
             mpMapDrawer->DrawSurface();
         }
 
-        if (menuShowImg) {
-            // load the image (TODO: for testing only)
-            std::string img_path_1 = "/home/ernest/SLAM/datasets/mydata/images/10044.png";
-            std::string img_path_2 = "/home/ernest/SLAM/datasets/mydata/images/10001.png";
-
-            texture[0] = SOIL_load_OGL_texture // load an image file directly as a new OpenGL texture
-                    (
-                            img_path_1.c_str(),
-                            SOIL_LOAD_AUTO,
-                            SOIL_CREATE_NEW_ID,
-                            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
-                    );
-            texture[1] = SOIL_load_OGL_texture // load an image file directly as a new OpenGL texture
-                    (
-                            img_path_2.c_str(),
-                            SOIL_LOAD_AUTO,
-                            SOIL_CREATE_NEW_ID,
-                            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
-                    );
-
-
-// allocate a texture name
-
-            glEnable(GL_TEXTURE_2D);
-//            glEnable(GL_BLEND);
-//            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            glBindTexture(GL_TEXTURE_2D, texture[0]);
-//            glEnable (GL_TEXTURE_2D);
-            glBegin(GL_QUADS);
-//            glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
-//            glColor3d(1,1,0);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(0.0f, 0.0f,  0.0f);
-            glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, 0.0f,  0.0f);
-            glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  0.0f);
-            glTexCoord2f(0.0f, 1.0f); glVertex3f(0.0f,  1.0f,  0.0f);
-            glEnd();
-            glDisable(GL_TEXTURE_2D);
-        }
+//        if (menuShowImg) {
+//            // load the image (TODO: for testing only)
+//            std::string img_path_1 = "/home/ernest/SLAM/datasets/mydata/images/10044.png";
+//            std::string img_path_2 = "/home/ernest/SLAM/datasets/mydata/images/10001.png";
+//
+//            texture[0] = SOIL_load_OGL_texture // load an image file directly as a new OpenGL texture
+//                    (
+//                            img_path_1.c_str(),
+//                            SOIL_LOAD_AUTO,
+//                            SOIL_CREATE_NEW_ID,
+//                            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+//                    );
+//            texture[1] = SOIL_load_OGL_texture // load an image file directly as a new OpenGL texture
+//                    (
+//                            img_path_2.c_str(),
+//                            SOIL_LOAD_AUTO,
+//                            SOIL_CREATE_NEW_ID,
+//                            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+//                    );
+//
+//
+//// allocate a texture name
+//
+//            glEnable(GL_TEXTURE_2D);
+//            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//            glBindTexture(GL_TEXTURE_2D, texture[0]);
+//            glBegin(GL_TRIANGLES);
+//            glTexCoord2f(0.0f, 0.0f); glVertex3f(0.0f, 0.0f,  0.0f);
+//            glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, 0.0f,  0.0f);
+//            glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  0.0f);
+//            glEnd();
+//            glDisable(GL_TEXTURE_2D);
+//        }
 
 //        if (menuShowImg){
 //            std::string img_path = "/home/ernest/SLAM/datasets/mydata/images/10044.png";

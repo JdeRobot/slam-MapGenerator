@@ -1,11 +1,11 @@
 %YAML:1.0
 ---
 Common:
-   img_dir: /home/ernest/SLAM/datasets/sequence_43/undistorted_images/
+   img_dir: /home/ernest/SLAM/datasets/freiburg3_far/rgb/../
    trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectoryRGBD.yaml"
    enableLoopClosure: 0
-   enableBA: 1
-   enableSurfaceRecon: 0
+   enableBA: 0
+   enableSurfaceRecon: 1
 # GlobalBA has no local parameters.
 
 LoopClosure:

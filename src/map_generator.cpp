@@ -301,9 +301,9 @@ pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
 }
 
 
-int show_result_user_interface(Map& map, pcl::PolygonMeshPtr triangles){
+int show_result_user_interface(Map& map, NodeConfig * config, pcl::PolygonMeshPtr triangles){
     // Create user interface
-    MapGen::MapDrawer * mdrawer = new MapGen::MapDrawer(&map, triangles);
+    MapGen::MapDrawer * mdrawer = new MapGen::MapDrawer(&map, config, triangles);
 
     MapGen::Viewer* viewer = nullptr;
     std::thread* tviewer = nullptr;
@@ -387,7 +387,7 @@ int main(int argc, const char * argv[]){
         triangles = surface_recon(map,cam,config);;
     }
 
-    show_result_user_interface(map, triangles);
+    show_result_user_interface(map, &config, triangles);
 
     return 0;
 }
