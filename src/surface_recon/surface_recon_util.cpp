@@ -10,7 +10,7 @@ pcl::PointCloud<pcl::Normal>::Ptr pcl_compute_normal(pcl::PointCloud<pcl::PointX
     tree->setInputCloud(cloud);
     n.setInputCloud(cloud);
     n.setSearchMethod(tree);
-    n.setKSearch(20);
+    n.setKSearch(5);
     n.compute(*normals);
 //* normals should not contain the point normals + surface curvatures
 
@@ -19,7 +19,9 @@ pcl::PointCloud<pcl::Normal>::Ptr pcl_compute_normal(pcl::PointCloud<pcl::PointX
     return normals;
 }
 
-pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) {
+pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
+        double mu, double maximumNearestNeighbors, double searchRadius) {
+
     // compute the normals
     auto normals = pcl_compute_normal(cloud);
     // Concatenate the XYZ and normal fields*
@@ -38,11 +40,11 @@ pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     pcl::PolygonMesh triangles;
 
 // Set the maximum distance between connected points (maximum edge length)
-    gp3.setSearchRadius(0.025);
+    gp3.setSearchRadius(searchRadius);
 
 // Set typical values for the parameters
-    gp3.setMu(2.5);
-    gp3.setMaximumNearestNeighbors(100);
+    gp3.setMu(mu);
+    gp3.setMaximumNearestNeighbors((int)maximumNearestNeighbors);
     gp3.setMaximumSurfaceAngle(M_PI / 4); // 45 degrees
     gp3.setMinimumAngle(M_PI / 18); // 10 degrees
     gp3.setMaximumAngle(2 * M_PI / 3); // 120 degrees
@@ -62,7 +64,39 @@ pcl::PolygonMesh pcl_fast_surface_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     return triangles;
 }
 
+pcl::PolygonMesh pcl_polygonmesh_playground(){
+    pcl::PolygonMesh mesh;
 
+    // create vertex
+    pcl::PointCloud<pcl::PointXYZ> cloud;
+    cloud.push_back(pcl::PointXYZ(0,0,0));
+    cloud.push_back(pcl::PointXYZ(0,1,0));
+    cloud.push_back(pcl::PointXYZ(1,0,0));
+    cloud.push_back(pcl::PointXYZ(1,1,0));
+
+    pcl::PCLPointCloud2 cloud2;
+    pcl::toPCLPointCloud2(cloud,cloud2);
+    mesh.cloud = cloud2;
+
+    // create polygon
+    std::vector<pcl::Vertices> vertices_vector;
+
+    pcl::Vertices v1, v2;
+    v1.vertices.push_back(0);
+    v1.vertices.push_back(1);
+    v1.vertices.push_back(2);
+
+    v2.vertices.push_back(1);
+    v2.vertices.push_back(2);
+    v2.vertices.push_back(3);
+
+    vertices_vector.push_back(v1);
+    vertices_vector.push_back(v2);
+
+    mesh.polygons = vertices_vector;
+
+    return mesh;
+}
 
 pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
     // compute the normals
@@ -84,4 +118,160 @@ pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
     LOG_INFO << "Reconstruction Completed." << std::endl;
 
     return triangles;
+}
+
+
+//std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in){
+//
+//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(cloud_in);
+//
+//    while(1) {
+//        std::vector<int> inliers;
+//
+//        pcl::SampleConsensusModelPlane<pcl::PointXYZ>::Ptr
+//                model_p(new pcl::SampleConsensusModelPlane<pcl::PointXYZ>(cloud));
+//
+//        pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_p);
+//        ransac.setDistanceThreshold(.01);
+//        ransac.computeModel();
+//        ransac.getInliers(inliers);
+//
+//
+//
+//    }
+//}
+
+
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double min_preserve_ratio) {
+
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clouds;
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>),
+        cloud_f (new pcl::PointCloud<pcl::PointXYZ>);
+
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+
+    // Create the segmentation object
+    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    // Optional
+    seg.setOptimizeCoefficients(true);
+    // Mandatory
+    seg.setModelType(pcl::SACMODEL_PLANE);
+    seg.setMethodType(pcl::SAC_RANSAC);
+    seg.setMaxIterations(1000);
+    seg.setDistanceThreshold(0.02);
+
+    // Create the filtering object
+    pcl::ExtractIndices<pcl::PointXYZ> extract;
+
+    int nr_points = (int) cloud->points.size();
+
+    // While 30% of the original cloud is still there
+    while (cloud->points.size() > min_preserve_ratio * nr_points) {
+        // Segment the largest planar component from the remaining cloud
+        seg.setInputCloud(cloud);
+        seg.segment(*inliers, *coefficients);
+        if (inliers->indices.size() == 0) {
+            std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+            break;
+        }
+
+        // Extract the inliers
+        extract.setInputCloud(cloud);
+        extract.setIndices(inliers);
+        extract.setNegative(false);
+        extract.filter(*cloud_p);
+        std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height
+                  << " data points." << std::endl;
+        std::cerr << "Model Coefficients: ";
+        for (int i = 0 ; i < coefficients.get()->values.size(); i++){
+            std::cerr << coefficients.get()->values[i] << "  ";
+        }
+        std::cerr << std::endl;
+
+        // Save the pointcloud
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_to_save(new pcl::PointCloud<pcl::PointXYZ>);
+        *cloud_to_save = *cloud_p;
+        clouds.push_back(cloud_to_save);
+
+        // Create the filtering object
+        extract.setNegative (true);
+        extract.filter (*cloud_f);
+        cloud.swap (cloud_f);
+    }
+
+    return clouds;
+}
+
+pcl::PolygonMesh build_rect_mesh(std::vector<pcl::PointXYZ> corners){
+    if (corners.size() != 4){
+        throw std::runtime_error("Error input for build_rect_mesh(), only 4 corners are acceptable.");
+    }
+
+    pcl::PolygonMesh mesh;
+
+    // create vertex
+    pcl::PointCloud<pcl::PointXYZ> cloud;
+    cloud.push_back(pcl::PointXYZ(0,0,0));
+    cloud.push_back(pcl::PointXYZ(0,1,0));
+    cloud.push_back(pcl::PointXYZ(1,0,0));
+    cloud.push_back(pcl::PointXYZ(1,1,0));
+
+    pcl::PCLPointCloud2 cloud2;
+    pcl::toPCLPointCloud2(cloud,cloud2);
+    mesh.cloud = cloud2;
+
+    // create polygon
+    std::vector<pcl::Vertices> vertices_vector;
+
+    pcl::Vertices v1, v2;
+    v1.vertices.push_back(0);
+    v1.vertices.push_back(1);
+    v1.vertices.push_back(2);
+
+    v2.vertices.push_back(1);
+    v2.vertices.push_back(2);
+    v2.vertices.push_back(3);
+
+    vertices_vector.push_back(v1);
+    vertices_vector.push_back(v2);
+
+    mesh.polygons = vertices_vector;
+
+    return mesh;
+}
+
+
+pcl::PolygonMesh concatenate_polygon_mesh(std::vector<pcl::PolygonMesh> input_meshes){
+    pcl::PolygonMesh output_mesh;
+    pcl::PointCloud<pcl::PointXYZ> output_cloud;
+
+    int point_idx_offset = 0;
+    for (auto mesh : input_meshes){
+        pcl::PointCloud<pcl::PointXYZ> cloud;
+        pcl::fromPCLPointCloud2(mesh.cloud,cloud);
+
+        // add vertices to the new mesh
+        output_cloud = output_cloud + cloud;
+
+        // add polygon to the new mesh
+        for (pcl::Vertices polygon_old : mesh.polygons){
+
+            pcl::Vertices polygon_new;
+
+            polygon_new.vertices.push_back(polygon_old.vertices[0] + point_idx_offset);
+            polygon_new.vertices.push_back(polygon_old.vertices[1] + point_idx_offset);
+            polygon_new.vertices.push_back(polygon_old.vertices[2] + point_idx_offset);
+
+            output_mesh.polygons.push_back(polygon_new);
+        }
+
+        // update the mesh offset
+        point_idx_offset += cloud.points.size();
+    }
+
+    // set the output mesh's pointcloud
+    pcl::toPCLPointCloud2(output_cloud,output_mesh.cloud);
+    return output_mesh;
 }

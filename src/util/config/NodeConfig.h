@@ -26,6 +26,7 @@
 #include <exception>
 #include <sys/stat.h>
 #include <logging_util.h>
+#include <map>
 
 namespace MapGen {
     // =========================================================================
@@ -35,35 +36,68 @@ namespace MapGen {
     bool is_file_exist(const std::string& file_name);
 
 
+
+    // =========================================================================
+    //  ParamNamespace Class
+    // =========================================================================
+    class ParamNamespace{
+    public:
+        ParamNamespace();
+        ParamNamespace(const std::string& name_space);
+
+        // The type could be:
+        //      string
+        //      double
+        void add_param(const std::string& name, const std::string& type);
+
+        // TODO: check if the param_name is in the string params
+        void set_string_param(const std::string& name, const std::string& value);
+        void set_double_param(const std::string& name, double value);
+
+        // TODO: what if it cause an error
+        std::string get_string_param(const std::string& name);
+        double get_double_param(const std::string& name);
+
+        void dump_to_fs(cv::FileStorage& fs);
+        void read_from_fs(cv::FileNode& node);
+
+        void print_all_params();
+
+        std::string get_ns_name();
+
+    private:
+        std::string name_space_;
+
+        std::map<std::string, std::string>  string_params_;
+        std::map<std::string, double>  double_params_;
+
+        std::vector<std::string>  string_params_names_;
+        std::vector<std::string> double_params_names_;
+    };
+
+
     // =========================================================================
     //  NodeConfig Class
     // =========================================================================
     class NodeConfig {
     public:
-        explicit NodeConfig(std::string filename);
+        NodeConfig();
+        NodeConfig(std::string filename);
 
-        std::string get_img_dir();
+        void add_namespace(const std::string& name_space);
+        void add_param(const std::string& name_space, const std::string& name, const std::string &type);
 
-        std::string get_trajectory();
-        std::string get_pointcloud();
-        std::string get_vocabulary();
-        bool use_trajectory();
+        void set_string_param(const std::string& name_space, const std::string& param_name, const std::string& value);
+        void set_double_param(const std::string& name_space, const std::string& param_name, double value);
 
-        double get_threshold();
+        std::string get_string_param(const std::string& name_space, const std::string& name);
+        double get_double_param(const std::string& name_space, const std::string& name);
 
-        bool use_fast_triangulation_recon();
-        bool use_poisson_recon();
+        void dump(const std::string& filename );
+        void read_from_file(const std::string& filename);
 
     private:
-        std::string img_dir_;
-        std::string trajectory_;
-        std::string vocabulary_;
-        std::string pc_filename_;
-        double threshold_;
-
-        bool use_trajectory_;
-        bool use_fast_triangulation_recon_;
-        bool use_poisson_recon_;
+        std::map<std::string, ParamNamespace> namespace_map;
     };
 }
 

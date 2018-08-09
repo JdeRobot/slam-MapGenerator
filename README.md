@@ -55,6 +55,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 
 make -j4
 ```
+
 ### Loop Closing
 ```shell
 ./loop_detection ../config/loop_detector_config.yaml
@@ -98,6 +99,9 @@ econstruction                                          |
 ### Testing environment
 All programs are tested under Ubuntu16.04. 
 
+<!-- ### Mutli-threading
+Since this project depends on ceres-solver, if you want multi-threading, make sure that you built the ceres-solver with OpenMP / TBB multi-threading.
+ -->
 ### Contact
 We are using Github Issues to manage bugs and provide answers to questions. Feel free to file bug report / ask questions.
 

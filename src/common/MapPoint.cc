@@ -60,4 +60,22 @@ std::set<KeyFrame*> MapPoint::GetObservations() {
     return observations_;
 }
 
+    int MapPoint::GetID() {return id_;}
+
+    void MapPoint::SetWorldPos(Eigen::Vector3d pose) {
+    position_ = pose;
+}
+
+
+    std::map<KeyFrame *, Eigen::Vector2d> MapPoint::GetObservarionsWithPose() {
+        auto frames = GetObservations();
+
+        std::map<KeyFrame *, Eigen::Vector2d> res;
+        for (auto kf : frames) {
+            res.insert(std::pair<KeyFrame *, Eigen::Vector2d>(kf, kf->GetObservations()[this]));
+        }
+
+        return res;
+    }
+
 }  // namespace SLAM_VIEWER

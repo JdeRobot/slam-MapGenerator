@@ -23,10 +23,12 @@
 #include <mutex>
 #include <string>
 #include <pangolin/pangolin.h>
+#include <pangolin/image/image_io.h>
 #include <unistd.h>
 #include "Config.h"
 #include "MapDrawer.h"
 #include "logging_util.h"
+#include "SOIL.h"
 
 namespace MapGen {
 

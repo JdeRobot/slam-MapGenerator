@@ -38,10 +38,14 @@ class MapPoint {
  public:
     MapPoint(int id, const std::vector<double> &position);
 
+    int GetID();
+
     Eigen::Vector3d GetWorldPos();
+    void SetWorldPos(Eigen::Vector3d pose);
 
     // Observations functions
     std::set<KeyFrame*> GetObservations();
+    std::map<KeyFrame *, Eigen::Vector2d> GetObservarionsWithPose();
     void AddObservation(KeyFrame* kf);
     void EraseObservation(KeyFrame* kf);
 

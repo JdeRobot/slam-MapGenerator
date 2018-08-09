@@ -23,21 +23,65 @@
 #include <mutex>
 #include <pangolin/pangolin.h>
 #include <Eigen/Dense>
+#include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <pcl/PolygonMesh.h>
+#include <pcl/conversions.h>
+#include <cmath>
+#include <fstream>
 #include "Map.h"
+#include "MapPoint.h"
+#include "Config.h"
+#include "SOIL.h"
+#include "NodeConfig.h"
 
 namespace MapGen {
 
 class MapDrawer {
  public:
-    MapDrawer(Map *map);
+    MapDrawer(Map *map, NodeConfig * config);
+
+    MapDrawer(Map *map, NodeConfig * config, pcl::PolygonMeshPtr mesh);
 
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
-    void DrawTriangle(const Eigen::Vector3f& v1, const Eigen::Vector3f& v2, const Eigen::Vector3f& v3, bool draw_border = false);
+    void DrawSurface();
+
+
+    // ==================== Helper Functions =============================
+    void DrawTriangle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2, const Eigen::Vector3d& v3, bool draw_border = false);
+    void DrawTriangle(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3, bool draw_border);
+
+    // the texture will only refresh once
+    void DrawTriangleTexture(std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points, bool draw_border);
+    bool DrawTriangleTexture(int polygon_idx, bool draw_boarder);
+
+    // Get the set of observations that the 3 points must be observed in the same image.
+    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> GetObservations(std::vector<MapPoint *> points);
+
+    inline MapPoint * SearchNearest(pcl::PointXYZ point);
+
+    void BuildCorrespondence();
 
  private:
     Map * map_;
+    pcl::PolygonMeshPtr mesh_;
+    NodeConfig * config_;
+
+    //
+    // cached variables to accelerate the GUI
+    //
+    // points (index: point index), establish on startup
+    std::map<int, MapPoint *> pt_correspondence_;
+    // index: polygon index in the mesh
+    std::map<int, std::vector<std::pair<KeyFrame *, Eigen::Vector2d>>> cached_observations_;
+    // the texture
+    std::map<KeyFrame *, GLuint> surf_textures_;
+    // width first
+    std::map<KeyFrame *, std::pair<int, int>> surf_shapes_;
+
+    std::ofstream debug_file;
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

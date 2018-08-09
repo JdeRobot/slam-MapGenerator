@@ -51,10 +51,35 @@ namespace MapGen{
             output += "      - " + std::to_string(t(2)) + "\n";
         }
 
-        // Save map points
-        // output += "points:";
-
         f << output;
+
+        // Save map points
+        // The points are re-indexed through this stage
+        f << "points:\n";
+        auto map_points = map.GetAllMapPoints();
+        int point_idx = 0;
+        for (MapPoint * point : map_points){
+            Eigen::Vector3d pos = point->GetWorldPos();
+
+            std::string output = "";
+            output += "  - id: " + std::to_string(point_idx) + "\n";
+            output += "    pose:\n";
+            output += "      - " + std::to_string(pos(0)) + "\n";
+            output += "      - " + std::to_string(pos(1)) + "\n";
+            output += "      - " + std::to_string(pos(2)) + "\n";
+            output += "    observations:\n";
+            for (KeyFrame * kf : point->GetObservations()){
+                Eigen::Vector2d ob = kf->GetObservations()[point];
+                output += "      - kf: " + std::to_string(kf->GetId()) + "\n";
+                output += "        pixel:\n";
+                output += "          - "+ std::to_string(ob(1)) + "\n";
+                output += "          - "+ std::to_string(ob(2)) + "\n";
+            }
+
+            f << output;
+            point_idx ++;
+        }
+        // output += "points:";
         LOG_INFO << "Trajectory saved to file: " << filename << std::endl;
     }
 

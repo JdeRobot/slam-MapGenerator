@@ -27,6 +27,8 @@
 
 #include <set>
 #include <mutex>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include "MapPoint.h"
 #include "KeyFrame.h"
 
@@ -41,6 +43,8 @@ class Map {
 
     std::vector<KeyFrame*> GetAllKeyFrames();
     std::vector<MapPoint*> GetAllMapPoints();
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr GetPC();
 
     // Get KeyFrame by id
     KeyFrame* GetKeyFrame(int id);
