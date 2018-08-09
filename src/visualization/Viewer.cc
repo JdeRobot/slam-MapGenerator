@@ -112,7 +112,7 @@ void Viewer::Run() {
 
     SetFinish();
 
-	LOG_INFO << "UI thread finished, exiting...";
+	LOG_INFO << "UI thread finished, exiting..." << std::endl;
 }
 
 void Viewer::RequestFinish() {

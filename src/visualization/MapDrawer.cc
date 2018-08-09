@@ -189,12 +189,17 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
 
 
     void MapDrawer::DrawSurface() {
-        if (mesh_ == nullptr){
+        if ((mesh_ == nullptr)){
             return;
         }
 
-        pcl::PointCloud<pcl::PointXYZ> points;
-        pcl::fromPCLPointCloud2(mesh_->cloud, points);
+        pcl::PointCloud<pcl::PointXYZ> pcl_points;
+        pcl::fromPCLPointCloud2(mesh_->cloud, pcl_points);
+
+        // if no corespondence between pcl::PointXYZ and MapPoints established, build it
+        if (pt_correspondence.size() == 0) {
+            BuildCorrespondence();
+        }
 
         auto polygons = mesh_->polygons;
         for (auto v : polygons){
@@ -202,34 +207,71 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
             int p1_idx = v.vertices[1];
             int p2_idx = v.vertices[2];
 
-            DrawTriangle(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx),true);
+//            DrawTriangle(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx),true);
 
+            std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points_pairs;
+            points_pairs.push_back(std::pair<pcl::PointXYZ, MapPoint *>(pcl_points[p0_idx],pt_correspondence[p0_idx]));
+            points_pairs.push_back(std::pair<pcl::PointXYZ, MapPoint *>(pcl_points[p1_idx],pt_correspondence[p1_idx]));
+            points_pairs.push_back(std::pair<pcl::PointXYZ, MapPoint *>(pcl_points[p2_idx],pt_correspondence[p2_idx]));
             // For debug only
-//            DrawTriangleTexture(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx));
+            DrawTriangleTextureOnce(points_pairs, true);
         }
     }
 
 
-    void MapDrawer::DrawTriangleTexture(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3) {
+    void MapDrawer::DrawTriangleTextureOnce(std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points_pairs, bool draw_border) {
+
+        assert(points_pairs.size() == 3);
+
+        // for debugging and testing TODO
+        for (auto pt_pair : points_pairs){
+            assert(pt_pair.first.x == pt_pair.second->GetWorldPos()[0]);
+            assert(pt_pair.first.y == pt_pair.second->GetWorldPos()[1]);
+            assert(pt_pair.first.z == pt_pair.second->GetWorldPos()[2]);
+        }
+
 
         std::vector<pcl::PointXYZ> points_pcl;
-        points_pcl.push_back(pt1);
-        points_pcl.push_back(pt2);
-        points_pcl.push_back(pt3);
-        auto observations = GetObservations(points_pcl);
+        pcl::PointXYZ pt1 = points_pairs[0].first;
+        pcl::PointXYZ pt2 = points_pairs[1].first;
+        pcl::PointXYZ pt3 = points_pairs[2].first;
 
+
+        // load the image
+        GLuint texture;
+        
+
+
+//        glBegin(GL_TRIANGLES);
+//        glColor3f(0.0, 0.0, 1.0);
+//
+//        // the first vertex
+//        glVertex3f(pt1.x,pt1.y,pt1.z);
+//        // the second vertex
+//        glVertex3f(pt2.x,pt2.y,pt2.z);
+//        // the third vertex
+//        glVertex3f(pt3.x,pt3.y,pt3.z);
+//        glEnd();
+
+        if (draw_border){
+            glBegin(GL_LINES);
+            glColor4f(0.0, 0.0, 0.0, 0.5);
+            // the first line
+            glVertex3f(pt1.x,pt1.y,pt1.z);
+            glVertex3f(pt2.x,pt2.y,pt2.z);
+            // the second line
+            glVertex3f(pt2.x,pt2.y,pt2.z);
+            glVertex3f(pt3.x,pt3.y,pt3.z);
+            // the third line
+            glVertex3f(pt1.x,pt1.y,pt1.z);
+            glVertex3f(pt3.x,pt3.y,pt3.z);
+            glEnd();
+        }
 
     }
 
 
-    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> MapDrawer::GetObservations(std::vector<pcl::PointXYZ> points_pcl) {
-
-
-        std::vector<MapPoint *> points;
-        for (auto pt : points_pcl){
-            points.push_back(SearchNearest(pt));
-        }
-
+    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> MapDrawer::GetObservations(std::vector<MapPoint *> points) {
         auto observations_1 = points[0]->GetObservarionsWithPose();
         auto observations_2 = points[1]->GetObservarionsWithPose();
         auto observations_3 = points[2]->GetObservarionsWithPose();
@@ -268,10 +310,26 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
         }
 
         if (dist_best > 0) {
-            LOG_INFO << "minimum distance: " << dist_best << std::endl;
+            LOG_ERROR << "minimum distance: " << dist_best << std::endl;
+            LOG_ERROR << "It's normal only if you are using implict surface reconstruction method. " << std::endl;
         }
 
         return pt_best;
+    }
+
+    void MapDrawer::BuildCorrespondence() {
+        // clear previous correspondence (just for sure)
+        pt_correspondence.clear();
+
+        // pcl points
+        pcl::PointCloud<pcl::PointXYZ> pcl_points;
+        pcl::fromPCLPointCloud2(mesh_->cloud,pcl_points);
+
+        // brute-force search to get the correspondence
+        for (int pt_idx = 0; pt_idx < pcl_points.size(); pt_idx ++){
+            auto point = SearchNearest(pcl_points[pt_idx]);
+            pt_correspondence[pt_idx] = point;
+        }
     }
 
 }  // namespace SLAM_VIEWER

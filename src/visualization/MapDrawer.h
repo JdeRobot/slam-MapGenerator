@@ -46,15 +46,22 @@ class MapDrawer {
     // ==================== Helper Functions =============================
     void DrawTriangle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2, const Eigen::Vector3d& v3, bool draw_border = false);
     void DrawTriangle(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3, bool draw_border);
-    void DrawTriangleTexture(pcl::PointXYZ pt1, pcl::PointXYZ pt2, pcl::PointXYZ pt3);
+
+    // the texture will only refresh once
+    void DrawTriangleTextureOnce(std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points, bool draw_border);
 
     // Get the set of observations that the 3 points must be observed in the same image.
-    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> GetObservations(std::vector<pcl::PointXYZ> points_pcl);
+    std::vector<std::pair<KeyFrame *, Eigen::Vector2d>> GetObservations(std::vector<MapPoint *> points_pcl);
 
     inline MapPoint * SearchNearest(pcl::PointXYZ point);
+
+    void BuildCorrespondence();
+
  private:
     Map * map_;
     pcl::PolygonMeshPtr mesh_;
+
+    std::map<int, MapPoint *> pt_correspondence;
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
