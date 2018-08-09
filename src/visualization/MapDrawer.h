@@ -23,7 +23,9 @@
 #include <mutex>
 #include <pangolin/pangolin.h>
 #include <Eigen/Dense>
+#include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <pcl/PolygonMesh.h>
 #include <pcl/conversions.h>
 #include <cmath>

@@ -35,6 +35,8 @@ add_definitions(${PCL_DEFINITIONS})
 find_package(Ceres REQUIRED)
 include_directories(${CERES_INCLUDE_DIRS})
 
+
+
 # src
 include_directories(src/common
         src/loop-closure
@@ -47,8 +49,12 @@ include_directories(src/common
         src/surface_recon
         third-party/ORB2_SLAM
         src/bundle-adjustment
+        lib/soil/src
         )
 
+#Simple OpenGL Image Library
+file(GLOB soil_src lib/soil/src/*.c)
+set(lib_src ${lib_src} ${soil_src})
 
 
 # common
@@ -71,6 +77,7 @@ set(all_src ${common_src}
         ${logging_src}
         ${config_src}
         ${io_src}
+        ${lib_src}
         src/bundle-adjustment/bundle_ajustment.cpp
         )
 
@@ -133,5 +140,7 @@ target_link_libraries(map_generator
         ${CERES_LIBRARIES}
         )
 
-# =================== playground ===================
-add_subdirectory(playground)
+#message("all_src: ${all_src}")
+
+## =================== playground ===================
+#add_subdirectory(playground)

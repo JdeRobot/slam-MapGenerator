@@ -236,22 +236,16 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
         pcl::PointXYZ pt2 = points_pairs[1].first;
         pcl::PointXYZ pt3 = points_pairs[2].first;
 
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.0, 0.0, 1.0);
 
-        // load the image
-        GLuint texture;
-        
-
-
-//        glBegin(GL_TRIANGLES);
-//        glColor3f(0.0, 0.0, 1.0);
-//
-//        // the first vertex
-//        glVertex3f(pt1.x,pt1.y,pt1.z);
-//        // the second vertex
-//        glVertex3f(pt2.x,pt2.y,pt2.z);
-//        // the third vertex
-//        glVertex3f(pt3.x,pt3.y,pt3.z);
-//        glEnd();
+        // the first vertex
+        glVertex3f(pt1.x,pt1.y,pt1.z);
+        // the second vertex
+        glVertex3f(pt2.x,pt2.y,pt2.z);
+        // the third vertex
+        glVertex3f(pt3.x,pt3.y,pt3.z);
+        glEnd();
 
         if (draw_border){
             glBegin(GL_LINES);
