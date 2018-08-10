@@ -173,7 +173,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointClou
         seg.setInputCloud(cloud);
         seg.segment(*inliers, *coefficients);
         if (inliers->indices.size() == 0) {
-            std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+            LOG_ERROR << "Could not estimate a planar model for the given dataset." << std::endl;
             break;
         }
 
@@ -182,13 +182,13 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointClou
         extract.setIndices(inliers);
         extract.setNegative(false);
         extract.filter(*cloud_p);
-        std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height
+        LOG_INFO << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height
                   << " data points." << std::endl;
-        std::cerr << "Model Coefficients: ";
+        LOG_INFO << "Model Coefficients: ";
         for (int i = 0 ; i < coefficients.get()->values.size(); i++){
-            std::cerr << coefficients.get()->values[i] << "  ";
+            LOG_INFO << coefficients.get()->values[i] << "  ";
         }
-        std::cerr << std::endl;
+        LOG_INFO << std::endl;
 
         // Save the pointcloud
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_to_save(new pcl::PointCloud<pcl::PointXYZ>);

@@ -178,53 +178,6 @@ namespace MapGen {
     }
 
 
-    // TODO: delete this, this will not work
-    NodeConfig::NodeConfig(std::string filename) : namespace_map() {
-        cv::FileStorage fs(filename, cv::FileStorage::READ);
-
-        if (!fs.isOpened()){
-            LOG_ERROR << "Fail to read the config file: " << filename << std::endl;
-            throw std::runtime_error("Fail to read the config file: " + filename);
-        }
-//
-//        // fix img_path if the user forget to add tailing '/'
-//        fs["img_dir"] >> img_dir_;
-//        if ((img_dir_.length() > 0) && (img_dir_[img_dir_.length() - 1] != '/')){
-//            img_dir_.push_back('/');
-//        }
-//        if (!is_dir_exist(img_dir_)){
-//            img_dir_ = "";
-//        }
-//
-//        fs["trajectory"] >> trajectory_;
-//        fs["pointcloud"] >> pc_filename_;
-//        fs["Vocabulary"] >> vocabulary_;
-//        fs["use_trajectory"] >> use_trajectory_;
-//        fs["loop_detection_threshold"] >> threshold_;
-//
-//        fs["use_fast_triangulation_recon"] >> use_fast_triangulation_recon_;
-//        fs["use_poisson_recon"] >> use_poisson_recon_;
-//        if (((int)use_fast_triangulation_recon_ + (int)use_poisson_recon_) > 1){
-//            LOG_ERROR << "Enabled more than one surface reconstruction method." << std::endl;
-//        }
-
-        for (auto ns : namespace_map){
-            cv::FileNode fs_node = fs[ns.first];
-            ns.second.read_from_fs(fs_node);
-        }
-
-        // print nice info
-        LOG_INFO << "==================================Config================================" << std::endl;
-//        LOG_INFO << "img_dir: " << img_dir_ << std::endl;
-//        LOG_INFO << "trajectory: " << trajectory_ << std::endl;
-//        LOG_INFO << "Vocabulary: " << vocabulary_ << std::endl;
-//        LOG_INFO << "loop_detection_threshold: " << threshold_ << std::endl;
-        for (auto ns : namespace_map){
-            ns.second.print_all_params();
-        }
-        LOG_INFO << "========================================================================" <<std::endl;
-    }
-
     void NodeConfig::read_from_file(const std::string &filename) {
         cv::FileStorage fs(filename, cv::FileStorage::READ);
 
@@ -237,8 +190,6 @@ namespace MapGen {
         // read files
         for (auto it = namespace_map.begin(); it != namespace_map.end(); it++){
             cv::FileNode fs_node = fs[it->first];
-//            std::string tmp;
-//            fs_node["img_dir"] >> tmp;
             it->second.read_from_fs(fs_node);
         }
 
@@ -246,8 +197,6 @@ namespace MapGen {
         LOG_INFO << "==================================Config================================" << std::endl;
         for (auto it = namespace_map.begin(); it != namespace_map.end(); it++){
             cv::FileNode fs_node = fs[it->first];
-//            std::string tmp;
-//            fs_node["img_dir"] >> tmp;
             it->second.print_all_params();
         }
         LOG_INFO << "========================================================================" <<std::endl;

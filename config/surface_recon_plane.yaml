@@ -13,8 +13,11 @@ LoopClosure:
    loop_detection_threshold: 0.575
 
 SurfaceRecon:
-  # FastTriangulation / Poisson / PlaneRANSAC
+# FastTriangulation / Poisson / PlaneRANSAC
    reconMethod: "PlaneRANSAC"
+# Note: enabling stitching image would remove all plane with does not appear in single image
+#           You would have less surface
+   enableStitchingImage: 1
 
 ReconFastTriangulation:
    mu: 10

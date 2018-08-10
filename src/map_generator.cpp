@@ -91,7 +91,7 @@ void print_example_config(){
     LOG_INFO << "Example Config generated and saved to example.yaml" << std::endl;
 }
 
-// TODO (check IO works fine after integration)
+
 void loop_closing(Map& map, Camera& camera, NodeConfig& config){
     LOG_INFO << "==============================Loop Closure================================" << std::endl;
     // Get Config
@@ -180,19 +180,7 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
 }
 
 
-// TODO: need change the IO
 int bundle_ajustment(Map& map, const Camera& cam){
-//    google::InitGoogleLogging(argv[0]);
-//    if (argc != 2) {
-//        std::cerr << "usage: simple_bundle_adjuster <bal_problem>\n";
-//        return 1;
-//    }
-//
-//    BALProblem bal_problem;
-//    if (!bal_problem.LoadFile(argv[1])) {
-//        std::cerr << "ERROR: unable to open file " << argv[1] << "\n";
-//        return 1;
-//    }
     BALProblem bal_problem;
     bal_problem.LoadFromMap(map, cam);
 
@@ -235,7 +223,7 @@ int bundle_ajustment(Map& map, const Camera& cam){
 
 }
 
-// TODO: under dev (RANSAC is kind of working)
+
 pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
     if (config.get_string_param("SurfaceRecon","reconMethod") == "FastTriangulation"){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
@@ -243,10 +231,6 @@ pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
         double mu = config.get_double_param("ReconFastTriangulation", "mu");
         double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
         double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
-
-        // TODO: for debugging only
-        LOG_INFO << "Parameter mu: " << mu << std::endl;
-        LOG_INFO << "Parameter maximumNearestNeighbors" << maximumNearestNeighbors << std::endl;
 
         auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors, searchRadius);
 
