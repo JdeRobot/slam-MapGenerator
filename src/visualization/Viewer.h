@@ -1,6 +1,11 @@
 /**
  *
- *  Copyright (C) 2018 Eduardo Perdices <eperdices at gsyc dot es>
+ *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *
+ *  The following code is a derivative work of the code from the slam-viewer project,
+ *  which is licensed under the GNU Public License, version 3. This code therefore
+ *  is also licensed under the terms of the GNU Public License, version 3.
+ *  For more information see <https://github.com/JdeRobot/slam-viewer>.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

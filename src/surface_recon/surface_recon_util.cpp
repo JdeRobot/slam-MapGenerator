@@ -1,3 +1,23 @@
+/**
+ *
+ *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+
 #include "surface_recon_util.h"
 
 
@@ -119,27 +139,6 @@ pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
 
     return triangles;
 }
-
-
-//std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in){
-//
-//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(cloud_in);
-//
-//    while(1) {
-//        std::vector<int> inliers;
-//
-//        pcl::SampleConsensusModelPlane<pcl::PointXYZ>::Ptr
-//                model_p(new pcl::SampleConsensusModelPlane<pcl::PointXYZ>(cloud));
-//
-//        pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_p);
-//        ransac.setDistanceThreshold(.01);
-//        ransac.computeModel();
-//        ransac.getInliers(inliers);
-//
-//
-//
-//    }
-//}
 
 
 std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double min_preserve_ratio) {

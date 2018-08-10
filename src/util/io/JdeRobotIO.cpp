@@ -1,6 +1,3 @@
-//
-// Created by ernest on 18-7-11.
-//
 
 #include "JdeRobotIO.h"
 
