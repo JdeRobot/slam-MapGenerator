@@ -168,7 +168,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointClou
     int nr_points = (int) cloud->points.size();
 
     // While 30% of the original cloud is still there
-    while (cloud->points.size() > min_preserve_ratio * nr_points) {
+    while (cloud->points.size() > (1-min_preserve_ratio) * nr_points) {
         // Segment the largest planar component from the remaining cloud
         seg.setInputCloud(cloud);
         seg.segment(*inliers, *coefficients);

@@ -207,8 +207,22 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
 
         auto polygons = mesh_->polygons;
 
-        for (int polygon_idx = 0; polygon_idx < mesh_->polygons.size(); polygon_idx++){
-            DrawTriangleTexture(polygon_idx, false);
+        if (config_->get_double_param("SurfaceRecon","enableStitchingImage")) {
+            // draw triangles with texture
+            for (int polygon_idx = 0; polygon_idx < mesh_->polygons.size(); polygon_idx++) {
+                DrawTriangleTexture(polygon_idx, false);
+            }
+        }
+        else{
+            // draw triangles without texture
+            pcl::PointCloud<pcl::PointXYZ> cloud;
+            pcl::fromPCLPointCloud2(mesh_->cloud, cloud);
+            for (auto v : polygons){
+                int p0_idx = v.vertices[0];
+                int p1_idx = v.vertices[1];
+                int p2_idx = v.vertices[2];
+                DrawTriangle(cloud[p0_idx], cloud[p1_idx], cloud[p2_idx], true);
+            }
         }
     }
 

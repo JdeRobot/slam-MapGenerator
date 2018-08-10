@@ -46,8 +46,8 @@ void init_config(NodeConfig& config){
     config.add_namespace("LoopClosure");
     config.add_namespace("GlobalBA");
     config.add_namespace("SurfaceRecon");
-    config.add_namespace("ReconFastTriangulation");
     config.add_namespace("PlaneRANSAC");
+    config.add_namespace("GreedyTriangulation");
 
     config.add_param("Common", "img_dir", "string");
     config.add_param("Common", "trajectory", "string");
@@ -59,10 +59,11 @@ void init_config(NodeConfig& config){
     config.add_param("LoopClosure", "loop_detection_threshold", "double");
 
     config.add_param("SurfaceRecon", "reconMethod", "string");
+    config.add_param("SurfaceRecon", "enableStitchingImage", "double");
 
-    config.add_param("ReconFastTriangulation", "mu", "double");
-    config.add_param("ReconFastTriangulation", "maximumNearestNeighbors", "double");
-    config.add_param("ReconFastTriangulation", "searchRadius", "double");
+    config.add_param("GreedyTriangulation", "mu", "double");
+    config.add_param("GreedyTriangulation", "maximumNearestNeighbors", "double");
+    config.add_param("GreedyTriangulation", "searchRadius", "double");
     config.add_param("PlaneRANSAC", "minPreserveRatio", "double");
 
 }
@@ -225,19 +226,19 @@ int bundle_ajustment(Map& map, const Camera& cam){
 
 
 pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
-    if (config.get_string_param("SurfaceRecon","reconMethod") == "FastTriangulation"){
+    if (config.get_string_param("SurfaceRecon","reconMethod") == "GreedyTriangulation"){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
 
-        double mu = config.get_double_param("ReconFastTriangulation", "mu");
-        double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
-        double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
+        double mu = config.get_double_param("GreedyTriangulation", "mu");
+        double maximumNearestNeighbors = config.get_double_param("GreedyTriangulation", "maximumNearestNeighbors");
+        double searchRadius = config.get_double_param("GreedyTriangulation", "searchRadius");
 
         auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors, searchRadius);
 
         // save the polygon
         pcl::io::saveVTKFile("mesh.vtk",triangles);
     }
-    else if (config.get_string_param("SurfaceRecon","reconMethod") == "PlaneRANSAC"){
+    else if (config.get_string_param("SurfaceRecon","reconMethod") == "PlaneRANSAC+GreedyTriangulation"){
         // use RANSAC to remove outliners
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
 
@@ -260,9 +261,9 @@ pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
 
 
         // run surface reconstruction again to get the mesh
-        double mu = config.get_double_param("ReconFastTriangulation", "mu");
-        double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
-        double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
+        double mu = config.get_double_param("GreedyTriangulation", "mu");
+        double maximumNearestNeighbors = config.get_double_param("GreedyTriangulation", "maximumNearestNeighbors");
+        double searchRadius = config.get_double_param("GreedyTriangulation", "searchRadius");
 
         // individual reconstruction on each plane
         std::vector<pcl::PolygonMesh> meshes;
