@@ -1,6 +1,7 @@
 # slam-MapGenerator
 ## Project Description
-- This project aims at creating realistic 3D map from sparse SLAM / Visual Odometry algorithm
+- slam-MapGenerator is a complete system to reconstruct surface from visual odometry (provided by online sparse SLAM / VO algorithm) + raw images.
+<!-- move the following link to the bottom after GSOC, we are going to do something more in the future, the wiki could be miss leading at that time -->
 - This documentation is more developer and user oriented.
 - You may refer to the [project wiki](https://jderobot.org/Club-jianxiong) for more progress-oriented content. (More images and videos there)
 <!-- more description with images here -->
@@ -105,7 +106,9 @@ All programs are tested under Ubuntu16.04.
 Since this project depends on ceres-solver, if you want multi-threading, make sure that you built the ceres-solver with OpenMP / TBB multi-threading.
  -->
 ### Contact
-We are using Github Issues to manage bugs and provide answers to questions. Feel free to file bug report / ask questions there.
+We are using Github Issues to manage bugs and provide answers to questions. 
+Feel free to file bug report / ask questions there.
+New feature request and discussion are also more than welcomed.
 
 
 ## Acknowledgment
