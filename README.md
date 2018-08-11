@@ -65,6 +65,10 @@ make -j4
 ```
 
 ### Run
+#### download the dataset
+- Get the dataset from my google drive, choose TUM-RGBD-freiburg3-far, [short-cut](https://drive.google.com/file/d/1aOcYjd7-RJUvxnybc-ldJJpaYPsGLtSv/view?usp=sharing)
+- Download corresponding images from TUM (Sequence 'freiburg3_structure_texture_far'). [short-cut](https://vision.in.tum.de/data/datasets/rgbd-dataset/download#freiburg3_structure_texture_far)
+#### run the code
 ```shell
 ./build/map_generator ./config/example.yaml
 ```
