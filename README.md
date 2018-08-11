@@ -57,9 +57,11 @@ make -j4
 ```shell
 ./build/map_generator ./config/example.yaml
 ```
+The final reconstructed surface will be visualized with GUI. <br/>
+pose-graph optimization result will be saved to pose_optimized.yaml (if enabled). Global Bundle Adjustment result will be saved to BA_optimized.yaml (if enabled). You may visualized them by [slam-viewer](https://github.com/JdeRobot/slam-viewer.git) 
 
 ##### Configure File: 
-The second parameters of the above command is the configure file, it's in the following format: </br>
+The second parameters of the above command is the configure file, it's in the following format: <br/>
 The configure file has 4 blocks, detailed explanation are following:
 
 ###### Common:
@@ -71,7 +73,7 @@ The configure file has 4 blocks, detailed explanation are following:
 | enableBA        		   | Set to 1 to enable global bundle adjustment, set to 0 otherwise                            |
 | enableSurfaceRecon       | Set to 1 to enable surface reconstruction, set to 0 otherwise                              |
 
-Note: *${img_dir} + filename in trajectory file (YAML)* should be the fullpath of the image file (JPG/PNG/BMP). </br>
+Note: *${img_dir} + filename in trajectory file (YAML)* should be the fullpath of the image file (JPG/PNG/BMP). <br/>
 This is the reason that img_dir is written as /home/freiburg3_far/rgb/../
 
 ###### LoopClosure:
