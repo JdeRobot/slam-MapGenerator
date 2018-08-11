@@ -21,8 +21,6 @@ More complex environment would require further development.
 We would discuss and continue further development after August 22rd, 2018. Feature enhancement and suggestions are more than welcomed.
 </br>
 
-demo video below:
-
 
 ## Dataset and Result
 The detailed README about datasets is in the subfolder datasets. <br/>
