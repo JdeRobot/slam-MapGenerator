@@ -1,16 +1,27 @@
 # slam-MapGenerator
 ## Project Description
-- slam-MapGenerator is a complete system to reconstruct surface from visual odometry (provided by online sparse SLAM / VO algorithm) + raw images.
+Slam-MapGenerator is a complete system to reconstruct surface from visual odometry (provided by online sparse SLAM / VO algorithm) + raw images.
 <!-- move the following link to the bottom after GSOC, we are going to do something more in the future, the wiki could be miss leading at that time -->
-- This documentation is more developer and user oriented.
-- You may refer to the [project wiki](https://jderobot.org/Club-jianxiong) for more progress-oriented content. (More images and videos there)
+</br>
+For GSOC, You may refer to the [project wiki](https://jderobot.org/Club-jianxiong) for more progress-oriented content. (More images and videos there)
 <!-- more description with images here -->
 
 ## Overview 
-This project contains 3 major parts:
+This project contains 3 major parts for now:
 - Loop Closing
 - Global Bundle Adjustment (BA)
 - Reconstructing 3D Map 
+
+
+### Current Progress
+All 3 parts has finished development and testing. The whole program is capable of handing surface reconstruction in simple environment.
+</br>
+
+More complex environment would require further development.
+We would discuss and continue further development after August 22rd, 2018. Feature enhancement and suggestions are more than welcomed.
+</br>
+
+demo video below:
 
 
 ## Dataset and Result
