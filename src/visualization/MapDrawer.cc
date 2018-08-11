@@ -1,22 +1,3 @@
-/**
- *
- *  Copyright (C) 2018 Eduardo Perdices <eperdices at gsyc dot es>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Library General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 #include "MapDrawer.h"
 
 using std::vector;
@@ -206,30 +187,24 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
         }
 
         auto polygons = mesh_->polygons;
-//        for (int polygon_idx = 0; polygon_idx < mesh_->polygons.size(); polygon_idx++){
-//            auto v = mesh_->polygons.at(polygon_idx);
-//            int p0_idx = v.vertices[0];
-//            int p1_idx = v.vertices[1];
-//            int p2_idx = v.vertices[2];
-//
-////            DrawTriangle(points.at(p0_idx),points.at(p1_idx),points.at(p2_idx),true);
-//
-//            std::vector<std::pair<pcl::PointXYZ, MapPoint *>> points_pairs;
-//            points_pairs.push_back(std::pair<pcl::PointXYZ, MapPoint *>(pcl_points[p0_idx],pt_correspondence_[p0_idx]));
-//            points_pairs.push_back(std::pair<pcl::PointXYZ, MapPoint *>(pcl_points[p1_idx],pt_correspondence_[p1_idx]));
-//            points_pairs.push_back(std::pair<pcl::PointXYZ, MapPoint *>(pcl_points[p2_idx],pt_correspondence_[p2_idx]));
-//            // For debug only
-//            DrawTriangleTexture(points_pairs, true);
-//        }
 
-        int succeed_num = 0;
-        for (int polygon_idx = 0; polygon_idx < mesh_->polygons.size(); polygon_idx++){
-            if (DrawTriangleTexture(polygon_idx, true)){
-                succeed_num ++;
+        if (config_->get_double_param("SurfaceRecon","enableStitchingImage")) {
+            // draw triangles with texture
+            for (int polygon_idx = 0; polygon_idx < mesh_->polygons.size(); polygon_idx++) {
+                DrawTriangleTexture(polygon_idx, false);
             }
         }
-
-        LOG_INFO << "visualized surface: " << succeed_num << std::endl;
+        else{
+            // draw triangles without texture
+            pcl::PointCloud<pcl::PointXYZ> cloud;
+            pcl::fromPCLPointCloud2(mesh_->cloud, cloud);
+            for (auto v : polygons){
+                int p0_idx = v.vertices[0];
+                int p1_idx = v.vertices[1];
+                int p2_idx = v.vertices[2];
+                DrawTriangle(cloud[p0_idx], cloud[p1_idx], cloud[p2_idx], true);
+            }
+        }
     }
 
 
@@ -251,15 +226,6 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
             map_points.push_back(pt_correspondence_[p0_idx]);
             map_points.push_back(pt_correspondence_[p1_idx]);
             map_points.push_back(pt_correspondence_[p2_idx]);
-//            // TODO: debug output
-//            debug_file << "polygon_idx: " << polygon_idx << std::endl;
-//            debug_file << "pt0_idx: " << p0_idx << std::endl;
-//            debug_file << "pt0_idx: " << p1_idx << std::endl;
-//            debug_file << "pt0_idx: " << p2_idx << std::endl;
-//            debug_file << "map pt0 idx: " << pt_correspondence_[p0_idx]->GetID() << std::endl;
-//            debug_file << "map pt1 idx: " << pt_correspondence_[p1_idx]->GetID() << std::endl;
-//            debug_file << "map pt2 idx: " << pt_correspondence_[p2_idx]->GetID() << std::endl;
-//            debug_file << "--------------------------------------" << std::endl;
             cached_observations_[polygon_idx] = GetObservations(map_points);
         }
 
@@ -295,20 +261,20 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
         glBindTexture(GL_TEXTURE_2D, surf_textures_[kf]);
 
-        // get height and width, we need to rescale the pixel coordinate for opengl 
+        // get height and width, we need to rescale the pixel coordinate for opengl
         int width, height;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
 
         glBegin(GL_TRIANGLES);
         // first vertex
-        glTexCoord2f(observations[0].second[0] / width, observations[0].second[1] / height);         // stitching images
+        glTexCoord2f(observations[0].second[0] / width, 1 - observations[0].second[1] / height);         // stitching images
         glVertex3f(pt0[0],pt0[1],pt0[2]);                                           // 3d vertices
         // the second vertex
-        glTexCoord2f(observations[1].second[0] / width, observations[1].second[1] / height);
+        glTexCoord2f(observations[1].second[0] / width, 1 - observations[1].second[1] / height);
         glVertex3f(pt1[0],pt1[1],pt1[2]);
         // the third vertex
-        glTexCoord2f(observations[2].second[0] / width, observations[2].second[1] / height);
+        glTexCoord2f(observations[2].second[0] / width, 1 - observations[2].second[1] / height);
         glVertex3f(pt2[0],pt2[1],pt2[2]);
         glEnd();
         glDisable(GL_TEXTURE_2D);
@@ -338,17 +304,6 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
 
         assert(points_pairs.size() == 3);
 
-//        glBegin(GL_TRIANGLES);
-//        glColor3f(0.0, 0.0, 1.0);
-//
-//        // the first vertex
-//        glVertex3f(pt1.x,pt1.y,pt1.z);
-//        // the second vertex
-//        glVertex3f(pt2.x,pt2.y,pt2.z);
-//        // the third vertex
-//        glVertex3f(pt3.x,pt3.y,pt3.z);
-//        glEnd();
-
         std::vector<MapPoint *> v;
         v.push_back(points_pairs[0].second);
         v.push_back(points_pairs[1].second);
@@ -365,7 +320,6 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
             std::string img_filename = img_dir + kf->GetFilename();
             surf_textures_[kf] = SOIL_load_OGL_texture // load an image file directly as a new OpenGL texture
                     (
-                            // TODO: add folder path
                             img_filename.c_str(),
                             SOIL_LOAD_AUTO,
                             SOIL_CREATE_NEW_ID,
@@ -477,19 +431,6 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
             auto point = SearchNearest(pcl_points[pt_idx]);
             pt_correspondence_[pt_idx] = point;
         }
-
-//      TODO: for debugging and testing only
-//        for (auto v : pt_correspondence_){
-//            auto pt = pcl_points[v.first];
-//            debug_file << "pt.x: " << pt.x << std::endl;
-//            debug_file << "pt.y: " << pt.y << std::endl;
-//            debug_file << "pt.z: " << pt.z << std::endl;
-//            debug_file << "map pt idx: " << v.second->GetID() << std::endl;
-//            debug_file << "map pt.x: " << v.second->GetWorldPos()[0] << std::endl;
-//            debug_file << "map pt.y: " << v.second->GetWorldPos()[1] << std::endl;
-//            debug_file << "map pt.z: " << v.second->GetWorldPos()[2] << std::endl;
-//            debug_file << "-----------------------------------------" << std::endl;
-//        }
     }
 
 }  // namespace SLAM_VIEWER

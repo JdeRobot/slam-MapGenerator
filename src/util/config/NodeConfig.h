@@ -82,7 +82,6 @@ namespace MapGen {
     class NodeConfig {
     public:
         NodeConfig();
-        NodeConfig(std::string filename);
 
         void add_namespace(const std::string& name_space);
         void add_param(const std::string& name_space, const std::string& name, const std::string &type);

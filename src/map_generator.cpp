@@ -1,7 +1,20 @@
-/***
- * Description:
- * Usage:
- *      ./map_generator  --gen-config
+/**
+ *
+ *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #include <iostream>
@@ -46,8 +59,8 @@ void init_config(NodeConfig& config){
     config.add_namespace("LoopClosure");
     config.add_namespace("GlobalBA");
     config.add_namespace("SurfaceRecon");
-    config.add_namespace("ReconFastTriangulation");
     config.add_namespace("PlaneRANSAC");
+    config.add_namespace("GreedyTriangulation");
 
     config.add_param("Common", "img_dir", "string");
     config.add_param("Common", "trajectory", "string");
@@ -59,10 +72,11 @@ void init_config(NodeConfig& config){
     config.add_param("LoopClosure", "loop_detection_threshold", "double");
 
     config.add_param("SurfaceRecon", "reconMethod", "string");
+    config.add_param("SurfaceRecon", "enableStitchingImage", "double");
 
-    config.add_param("ReconFastTriangulation", "mu", "double");
-    config.add_param("ReconFastTriangulation", "maximumNearestNeighbors", "double");
-    config.add_param("ReconFastTriangulation", "searchRadius", "double");
+    config.add_param("GreedyTriangulation", "mu", "double");
+    config.add_param("GreedyTriangulation", "maximumNearestNeighbors", "double");
+    config.add_param("GreedyTriangulation", "searchRadius", "double");
     config.add_param("PlaneRANSAC", "minPreserveRatio", "double");
 
 }
@@ -91,7 +105,7 @@ void print_example_config(){
     LOG_INFO << "Example Config generated and saved to example.yaml" << std::endl;
 }
 
-// TODO (check IO works fine after integration)
+
 void loop_closing(Map& map, Camera& camera, NodeConfig& config){
     LOG_INFO << "==============================Loop Closure================================" << std::endl;
     // Get Config
@@ -180,19 +194,7 @@ void loop_closing(Map& map, Camera& camera, NodeConfig& config){
 }
 
 
-// TODO: need change the IO
 int bundle_ajustment(Map& map, const Camera& cam){
-//    google::InitGoogleLogging(argv[0]);
-//    if (argc != 2) {
-//        std::cerr << "usage: simple_bundle_adjuster <bal_problem>\n";
-//        return 1;
-//    }
-//
-//    BALProblem bal_problem;
-//    if (!bal_problem.LoadFile(argv[1])) {
-//        std::cerr << "ERROR: unable to open file " << argv[1] << "\n";
-//        return 1;
-//    }
     BALProblem bal_problem;
     bal_problem.LoadFromMap(map, cam);
 
@@ -235,25 +237,21 @@ int bundle_ajustment(Map& map, const Camera& cam){
 
 }
 
-// TODO: under dev (RANSAC is kind of working)
+
 pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
-    if (config.get_string_param("SurfaceRecon","reconMethod") == "FastTriangulation"){
+    if (config.get_string_param("SurfaceRecon","reconMethod") == "GreedyTriangulation"){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
 
-        double mu = config.get_double_param("ReconFastTriangulation", "mu");
-        double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
-        double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
-
-        // TODO: for debugging only
-        LOG_INFO << "Parameter mu: " << mu << std::endl;
-        LOG_INFO << "Parameter maximumNearestNeighbors" << maximumNearestNeighbors << std::endl;
+        double mu = config.get_double_param("GreedyTriangulation", "mu");
+        double maximumNearestNeighbors = config.get_double_param("GreedyTriangulation", "maximumNearestNeighbors");
+        double searchRadius = config.get_double_param("GreedyTriangulation", "searchRadius");
 
         auto triangles = pcl_fast_surface_recon(cloud, mu, maximumNearestNeighbors, searchRadius);
 
         // save the polygon
         pcl::io::saveVTKFile("mesh.vtk",triangles);
     }
-    else if (config.get_string_param("SurfaceRecon","reconMethod") == "PlaneRANSAC"){
+    else if (config.get_string_param("SurfaceRecon","reconMethod") == "PlaneRANSAC+GreedyTriangulation"){
         // use RANSAC to remove outliners
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = map.GetPC();
 
@@ -276,9 +274,9 @@ pcl::PolygonMeshPtr surface_recon(Map& map, Camera& cam, NodeConfig& config){
 
 
         // run surface reconstruction again to get the mesh
-        double mu = config.get_double_param("ReconFastTriangulation", "mu");
-        double maximumNearestNeighbors = config.get_double_param("ReconFastTriangulation", "maximumNearestNeighbors");
-        double searchRadius = config.get_double_param("ReconFastTriangulation", "searchRadius");
+        double mu = config.get_double_param("GreedyTriangulation", "mu");
+        double maximumNearestNeighbors = config.get_double_param("GreedyTriangulation", "maximumNearestNeighbors");
+        double searchRadius = config.get_double_param("GreedyTriangulation", "searchRadius");
 
         // individual reconstruction on each plane
         std::vector<pcl::PolygonMesh> meshes;

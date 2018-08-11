@@ -1,11 +1,11 @@
 %YAML:1.0
 ---
 Common:
-   img_dir: /home/ernest/SLAM/datasets/sequence_43/undistorted_images/
-   trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectory_noloop.yaml"
+   img_dir: /home/ernest/SLAM/datasets/freiburg3_far/rgb/../
+   trajectory: "/home/ernest/SLAM/datasets/trajectory/trajectoryRGBD.yaml"
    enableLoopClosure: 0
-   enableBA: 1
-   enableSurfaceRecon: 0
+   enableBA: 0
+   enableSurfaceRecon: 1
 # GlobalBA has no local parameters.
 
 LoopClosure:
@@ -13,13 +13,16 @@ LoopClosure:
    loop_detection_threshold: 0.575
 
 SurfaceRecon:
-  # FastTriangulation / Poisson / PlaneRANSAC
-   reconMethod: "PlaneRANSAC"
+# PlaneRANSAC+GreedyTriangulation is the only option
+   reconMethod: "PlaneRANSAC+GreedyTriangulation"
+# Note: enabling stitching image would remove all plane with does not appear in single image
+#           You would have less surface
+   enableStitchingImage: 1
 
-ReconFastTriangulation:
+PlaneRANSAC:
+   minPreserveRatio: 0.75
+
+GreedyTriangulation:
    mu: 10
    maximumNearestNeighbors: 10000
    searchRadius: 25
-
-PlaneRANSAC:
-   minPreserveRatio: 0.25

@@ -1,3 +1,23 @@
+/**
+ *
+ *  Copyright (C) 2018 Jianxiong Cai <caijx AT shanghaitech.edu.cn>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+
 #include "surface_recon_util.h"
 
 
@@ -121,27 +141,6 @@ pcl::PolygonMesh pcl_poisson_recon(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
 }
 
 
-//std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in){
-//
-//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(cloud_in);
-//
-//    while(1) {
-//        std::vector<int> inliers;
-//
-//        pcl::SampleConsensusModelPlane<pcl::PointXYZ>::Ptr
-//                model_p(new pcl::SampleConsensusModelPlane<pcl::PointXYZ>(cloud));
-//
-//        pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_p);
-//        ransac.setDistanceThreshold(.01);
-//        ransac.computeModel();
-//        ransac.getInliers(inliers);
-//
-//
-//
-//    }
-//}
-
-
 std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double min_preserve_ratio) {
 
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clouds;
@@ -168,12 +167,12 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointClou
     int nr_points = (int) cloud->points.size();
 
     // While 30% of the original cloud is still there
-    while (cloud->points.size() > min_preserve_ratio * nr_points) {
+    while (cloud->points.size() > (1-min_preserve_ratio) * nr_points) {
         // Segment the largest planar component from the remaining cloud
         seg.setInputCloud(cloud);
         seg.segment(*inliers, *coefficients);
         if (inliers->indices.size() == 0) {
-            std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+            LOG_ERROR << "Could not estimate a planar model for the given dataset." << std::endl;
             break;
         }
 
@@ -182,13 +181,13 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pcl_ransac_plane(pcl::PointClou
         extract.setIndices(inliers);
         extract.setNegative(false);
         extract.filter(*cloud_p);
-        std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height
+        LOG_INFO << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height
                   << " data points." << std::endl;
-        std::cerr << "Model Coefficients: ";
+        LOG_INFO << "Model Coefficients: ";
         for (int i = 0 ; i < coefficients.get()->values.size(); i++){
-            std::cerr << coefficients.get()->values[i] << "  ";
+            LOG_INFO << coefficients.get()->values[i] << "  ";
         }
-        std::cerr << std::endl;
+        LOG_INFO << std::endl;
 
         // Save the pointcloud
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_to_save(new pcl::PointCloud<pcl::PointXYZ>);
