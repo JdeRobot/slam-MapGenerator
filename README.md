@@ -129,3 +129,5 @@ New feature request and discussion are also more than welcomed.
 ## Acknowledgment
 This project was proposed and accepted as a student program for GSOC 2018 (Google Summer of Code), from May 14th to August 14th, 2018. Detailed wiki for this project as GSOC 2018 on this project is on the [project wiki](https://jderobot.org/Club-jianxiong). 
 
+## Note
+The original author is busy applying for grad school till 2019, so the project will not get update in short term. The development is expected to resume in early 2019. New feature request and discussion are still more than welcomed.
